@@ -10,17 +10,17 @@ services:
       - key: PORT
         value: 8080
       - key: DATABASE_URL
-        value: jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres
+        sync: false  # Set in Render dashboard
       - key: DATABASE_USERNAME
-        value: postgres.wynfrojhkzddzjbrpdcr
+        sync: false  # Set in Render dashboard
       - key: DATABASE_PASSWORD
-        value: a*Xxk3B7?HF8&3r
+        sync: false  # Set in Render dashboard
       - key: JWT_SECRET
-        value: your-super-secure-jwt-secret-key-at-least-256-bits-long-for-production-use-2024
+        sync: false  # Set in Render dashboard
       - key: JWT_EXPIRATION
         value: 86400000
       - key: ADMIN_PASSWORD
-        value: your-secure-admin-password-here
+        sync: false  # Set in Render dashboard
       - key: SECURITY_HEADERS_ENABLED
         value: true
       - key: EUK_ALLOWED_DOMAINS
