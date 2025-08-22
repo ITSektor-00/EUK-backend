@@ -59,11 +59,21 @@ public class ProductionSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Allow only EUK Vercel domains in production
-        configuration.setAllowedOrigins(List.of(
-            "https://euk.vercel.app",
-            "https://euk-it-sectors-projects.vercel.app"
-        ));
+        
+        // Get allowed domains from environment variable or use defaults
+        String allowedDomains = System.getenv("EUK_ALLOWED_DOMAINS");
+        if (allowedDomains != null && !allowedDomains.isEmpty()) {
+            configuration.setAllowedOrigins(Arrays.asList(allowedDomains.split(",")));
+        } else {
+            // Default domains
+            configuration.setAllowedOrigins(List.of(
+                "https://euk.vercel.app",
+                "https://euk-it-sectors-projects.vercel.app",
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://127.0.0.1:3000"
+            ));
+        }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         configuration.setAllowCredentials(true);
