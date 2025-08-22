@@ -22,7 +22,7 @@ Aplikacija je konfigurisana za rad sa sledećim Vercel domenima:
 - Rate limit se resetuje svaki minut
 
 #### Security Headers
-- Content Security Policy je konfigurisan da dozvoli EUK domene
+- Content Securuity Policy je konfigurisan da dozvoli EUK domene
 - Strict Transport Security je omogućen
 - X-Frame-Options, X-Content-Type-Options, X-XSS-Protection su aktivni
 
