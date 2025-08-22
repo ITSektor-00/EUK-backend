@@ -2,7 +2,7 @@
 
 Spring Boot backend aplikacija za EUK platformu.
 
-## EUK Domene
+## EUK Domen
 
 Aplikacija je konfigurisana za rad sa sledećim Vercel domenima:
 
