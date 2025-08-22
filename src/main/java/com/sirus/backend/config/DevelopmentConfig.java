@@ -17,6 +17,13 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,9 +51,36 @@ public class DevelopmentConfig implements WebMvcConfigurer {
                 .requestMatchers("/**").permitAll() // Dozvoli sve zahteve u development
             )
             .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), 
-                           UsernamePasswordAuthenticationFilter.class);
+                           UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
+    }
+
+    @Bean
+    public OncePerRequestFilter corsFilter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, 
+                                          HttpServletResponse response, 
+                                          FilterChain filterChain) throws ServletException, IOException {
+                
+                // Dodaj CORS headers eksplicitno
+                response.setHeader("Access-Control-Allow-Origin", "*");
+                response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Requested-With, Accept");
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+                response.setHeader("Access-Control-Max-Age", "3600");
+                
+                // Handle preflight requests
+                if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    return;
+                }
+                
+                filterChain.doFilter(request, response);
+            }
+        };
     }
 
     @Bean
@@ -69,6 +103,12 @@ public class DevelopmentConfig implements WebMvcConfigurer {
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
+        
+        // Dodaj CORS headers eksplicitno
+        configuration.addExposedHeader("Access-Control-Allow-Origin");
+        configuration.addExposedHeader("Access-Control-Allow-Methods");
+        configuration.addExposedHeader("Access-Control-Allow-Headers");
+        configuration.addExposedHeader("Access-Control-Allow-Credentials");
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
