@@ -5,6 +5,7 @@ import com.sirus.backend.entity.Route;
 import com.sirus.backend.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +95,7 @@ public class RouteService {
     }
     
     // Delete route
+    @Transactional
     public boolean deleteRoute(Long id) {
         if (routeRepository.existsById(id)) {
             routeRepository.deleteById(id);

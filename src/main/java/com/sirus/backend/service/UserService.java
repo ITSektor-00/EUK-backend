@@ -27,6 +27,9 @@ public class UserService {
     public Page<UserDto> findAllUsers(int page, int size, String role, Boolean isActive, String search) {
         Pageable pageable = PageRequest.of(page, size);
         
+        // Mapiranje frontend role na backend role
+        String mappedRole = mapFrontendRoleToBackend(role);
+        
         if (search != null && !search.trim().isEmpty()) {
             // Pretraga po username, email, firstName ili lastName
             return userRepository.findByUsernameContainingOrEmailContainingOrFirstNameContainingOrLastNameContaining(
@@ -34,11 +37,11 @@ public class UserService {
                 .map(this::convertToDto);
         }
         
-        if (role != null && isActive != null) {
-            return userRepository.findByRoleAndIsActive(role, isActive, pageable)
+        if (mappedRole != null && isActive != null) {
+            return userRepository.findByRoleAndIsActive(mappedRole, isActive, pageable)
                 .map(this::convertToDto);
-        } else if (role != null) {
-            return userRepository.findByRole(role, pageable)
+        } else if (mappedRole != null) {
+            return userRepository.findByRole(mappedRole, pageable)
                 .map(this::convertToDto);
         } else if (isActive != null) {
             return userRepository.findByIsActive(isActive, pageable)
@@ -47,6 +50,24 @@ public class UserService {
         
         // Bez filtera - svi korisnici
         return userRepository.findAll(pageable).map(this::convertToDto);
+    }
+    
+    /**
+     * Mapiranje frontend role na backend role
+     */
+    private String mapFrontendRoleToBackend(String frontendRole) {
+        if (frontendRole == null) return null;
+        
+        switch (frontendRole.toUpperCase()) {
+            case "ADMIN":
+                return "admin";
+            case "OBRADJIVAC":
+                return "obradjivaci predmeta";
+            case "POTPISNIK":
+                return "potpisnik";
+            default:
+                return frontendRole; // Vrati originalni ako ne prepoznaje
+        }
     }
     
     /**
@@ -167,9 +188,9 @@ public class UserService {
      */
     private boolean isValidRole(String role) {
         return role != null && (
-            role.equals("admin") || 
-            role.equals("obradjivaci predmeta") || 
-            role.equals("potpisnik")
+            role.equals("admin") || role.equals("ADMIN") ||
+            role.equals("obradjivaci predmeta") || role.equals("OBRADJIVAC") ||
+            role.equals("potpisnik") || role.equals("POTPISNIK")
         );
     }
     

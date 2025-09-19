@@ -13,5 +13,4 @@ public class SirusBackendApplication {
 		System.out.println("Environment: " + System.getenv("SPRING_PROFILES_ACTIVE"));
 		System.out.println("=============================");
 	}
-
 }

@@ -7,6 +7,7 @@ import com.sirus.backend.repository.UserRepository;
 import com.sirus.backend.repository.RouteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -81,6 +82,7 @@ public class UserRouteService {
     
     
     // Delete user route
+    @Transactional
     public boolean deleteUserRoute(Long userId, Long routeId) {
         if (userRouteRepository.existsByUserIdAndRouteId(userId, routeId)) {
             userRouteRepository.deleteByUserIdAndRouteId(userId, routeId);
