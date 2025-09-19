@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test - EUK Backend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        #log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px 5px;
+        }
+        .log-info { color: #0c5460; }
+        .log-success { color: #155724; }
+        .log-error { color: #721c24; }
+        .log-warning { color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 WebSocket Test - EUK Backend</h1>
+        
+        <div class="status info">
+            <strong>Status:</strong> <span id="status">Disconnected</span>
+        </div>
+        
+        <div>
+            <button id="connectSockJS" onclick="connectSockJS()">Connect SockJS</button>
+            <button id="connectNative" onclick="connectNative()">Connect Native</button>
+            <button id="disconnect" onclick="disconnect()" disabled>Disconnect</button>
+            <button id="sendMessage" onclick="sendMessage()" disabled>Send Test Message</button>
+            <button id="clearLog" onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div>
+            <h3>Connection Info:</h3>
+            <p><strong>Endpoint:</strong> <span id="endpoint">-</span></p>
+            <p><strong>Protocol:</strong> <span id="protocol">-</span></p>
+            <p><strong>Ready State:</strong> <span id="readyState">-</span></p>
+        </div>
+        
+        <div>
+            <h3>Log:</h3>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    
+    <script>
+        let stompClient = null;
+        let currentConnection = null;
+        let isConnected = false;
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStatus(status, type = 'info') {
+            document.getElementById('status').textContent = status;
+            document.querySelector('.status').className = `status ${type}`;
+        }
+        
+        function updateConnectionInfo(endpoint, protocol, readyState) {
+            document.getElementById('endpoint').textContent = endpoint;
+            document.getElementById('protocol').textContent = protocol;
+            document.getElementById('readyState').textContent = readyState;
+        }
+        
+        function updateButtons() {
+            document.getElementById('connectSockJS').disabled = isConnected;
+            document.getElementById('connectNative').disabled = isConnected;
+            document.getElementById('disconnect').disabled = !isConnected;
+            document.getElementById('sendMessage').disabled = !isConnected;
+        }
+        
+        function connectSockJS() {
+            log('Attempting to connect via SockJS...', 'info');
+            updateStatus('Connecting...', 'warning');
+            
+            const socket = new SockJS('http://localhost:8080/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.debug = function(str) {
+                log(`STOMP Debug: ${str}`, 'info');
+            };
+            
+            stompClient.connect({}, function(frame) {
+                log('SockJS connection established!', 'success');
+                log(`Frame: ${frame}`, 'info');
+                
+                isConnected = true;
+                currentConnection = 'SockJS';
+                updateStatus('Connected (SockJS)', 'success');
+                updateConnectionInfo('http://localhost:8080/ws', 'SockJS', 'OPEN');
+                updateButtons();
+                
+                // Subscribe to test topic
+                stompClient.subscribe('/topic/messages', function(message) {
+                    log(`Received message: ${message.body}`, 'success');
+                });
+                
+            }, function(error) {
+                log(`SockJS connection failed: ${error}`, 'error');
+                updateStatus('Connection Failed', 'error');
+                updateButtons();
+            });
+        }
+        
+        function connectNative() {
+            log('Attempting to connect via Native WebSocket...', 'info');
+            updateStatus('Connecting...', 'warning');
+            
+            const socket = new WebSocket('ws://localhost:8080/ws-native');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.debug = function(str) {
+                log(`STOMP Debug: ${str}`, 'info');
+            };
+            
+            stompClient.connect({}, function(frame) {
+                log('Native WebSocket connection established!', 'success');
+                log(`Frame: ${frame}`, 'info');
+                
+                isConnected = true;
+                currentConnection = 'Native';
+                updateStatus('Connected (Native)', 'success');
+                updateConnectionInfo('ws://localhost:8080/ws-native', 'Native WebSocket', 'OPEN');
+                updateButtons();
+                
+                // Subscribe to test topic
+                stompClient.subscribe('/topic/messages', function(message) {
+                    log(`Received message: ${message.body}`, 'success');
+                });
+                
+            }, function(error) {
+                log(`Native WebSocket connection failed: ${error}`, 'error');
+                updateStatus('Connection Failed', 'error');
+                updateButtons();
+            });
+        }
+        
+        function disconnect() {
+            if (stompClient && isConnected) {
+                stompClient.disconnect(function() {
+                    log('Disconnected successfully', 'info');
+                    isConnected = false;
+                    currentConnection = null;
+                    updateStatus('Disconnected', 'info');
+                    updateConnectionInfo('-', '-', 'CLOSED');
+                    updateButtons();
+                });
+            }
+        }
+        
+        function sendMessage() {
+            if (stompClient && isConnected) {
+                const message = {
+                    content: `Test message from ${currentConnection} at ${new Date().toLocaleTimeString()}`,
+                    timestamp: new Date().toISOString()
+                };
+                
+                stompClient.send('/app/message', {}, JSON.stringify(message));
+                log(`Sent message: ${JSON.stringify(message)}`, 'info');
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        // Initialize
+        updateButtons();
+        log('WebSocket Test Page Loaded', 'info');
+        log('Click "Connect SockJS" or "Connect Native" to test WebSocket connection', 'info');
+    </script>
+</body>
+</html>

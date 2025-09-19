@@ -2,6 +2,7 @@ package com.sirus.backend.controller;
 
 import com.sirus.backend.dto.EukPredmetDto;
 import com.sirus.backend.dto.EukUgrozenoLiceDto;
+import com.sirus.backend.dto.PaginatedResponse;
 import com.sirus.backend.entity.EukPredmet;
 import com.sirus.backend.exception.EukException;
 import com.sirus.backend.service.EukPredmetService;
@@ -31,7 +32,7 @@ public class EukPredmetController {
     private EukUgrozenoLiceService ugrozenoLiceService;
     
     @GetMapping
-    public ResponseEntity<Page<EukPredmetDto>> getAllPredmeti(
+    public ResponseEntity<PaginatedResponse<EukPredmetDto>> getAllPredmeti(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String status,
@@ -56,7 +57,7 @@ public class EukPredmetController {
                 predmeti = predmetService.findAll(page, size);
             }
             
-            return ResponseEntity.ok(predmeti);
+            return ResponseEntity.ok(PaginatedResponse.from(predmeti));
         } catch (IllegalArgumentException e) {
             logger.warn("Invalid filter parameter: {}", e.getMessage());
             return ResponseEntity.badRequest().build();

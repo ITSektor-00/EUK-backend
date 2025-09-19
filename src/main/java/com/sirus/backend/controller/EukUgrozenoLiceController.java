@@ -1,6 +1,7 @@
 package com.sirus.backend.controller;
 
 import com.sirus.backend.dto.EukUgrozenoLiceDto;
+import com.sirus.backend.dto.PaginatedResponse;
 import com.sirus.backend.exception.EukException;
 import com.sirus.backend.service.EukUgrozenoLiceService;
 import jakarta.validation.Valid;
@@ -12,7 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/euk/ugrozena-lica")
@@ -25,18 +27,41 @@ public class EukUgrozenoLiceController {
     private EukUgrozenoLiceService ugrozenoLiceService;
     
     @GetMapping
-    public ResponseEntity<Page<EukUgrozenoLiceDto>> getAllUgrozenaLica(
+    public ResponseEntity<?> getAllUgrozenaLica(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
         logger.info("GET /api/euk/ugrozena-lica - Fetching ugrožena lica with pagination - page: {}, size: {}", page, size);
         
         try {
+            // Validacija parametara
+            if (page < 0) {
+                logger.warn("Invalid page parameter: {}", page);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "INVALID_PAGE",
+                    "message", "Page number must be non-negative",
+                    "path", "/api/euk/ugrozena-lica"
+                ));
+            }
+            if (size <= 0 || size > 1000) {
+                logger.warn("Invalid size parameter: {}", size);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "INVALID_SIZE", 
+                    "message", "Size must be between 1 and 1000",
+                    "path", "/api/euk/ugrozena-lica"
+                ));
+            }
+            
             Page<EukUgrozenoLiceDto> ugrozenaLica = ugrozenoLiceService.findAll(page, size);
-            return ResponseEntity.ok(ugrozenaLica);
+            logger.info("Successfully fetched {} ugrožena lica for page {}", ugrozenaLica.getContent().size(), page);
+            return ResponseEntity.ok(PaginatedResponse.from(ugrozenaLica));
         } catch (Exception e) {
             logger.error("Error fetching ugrožena lica: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "INTERNAL_ERROR",
+                "message", "Greška pri dohvatanju podataka",
+                "path", "/api/euk/ugrozena-lica"
+            ));
         }
     }
     
@@ -114,5 +139,27 @@ public class EukUgrozenoLiceController {
             logger.error("Error searching ugroženo lice by JMBG {}: {}", jmbg, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+    
+    @GetMapping("/test")
+    public ResponseEntity<Map<String, Object>> test() {
+        logger.info("EUK Ugrožena Lica test endpoint called");
+        Map<String, Object> test = new HashMap<>();
+        test.put("status", "OK");
+        test.put("service", "EUK Ugrožena Lica API");
+        test.put("timestamp", java.time.LocalDateTime.now());
+        test.put("endpoints", new String[]{
+            "GET /api/euk/ugrozena-lica",
+            "GET /api/euk/ugrozena-lica/{id}",
+            "POST /api/euk/ugrozena-lica",
+            "PUT /api/euk/ugrozena-lica/{id}",
+            "DELETE /api/euk/ugrozena-lica/{id}",
+            "GET /api/euk/ugrozena-lica/search/{jmbg}",
+            "GET /api/euk/ugrozena-lica/test"
+        });
+        test.put("cors_enabled", true);
+        test.put("rate_limiting_enabled", true);
+        
+        return ResponseEntity.ok(test);
     }
 }

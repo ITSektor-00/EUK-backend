@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -71,7 +72,7 @@ public class AuthController {
             }
             
             AuthResponse response = authService.signUp(request);
-            logger.info("User {} successfully registered", request.getUsername());
+            logger.info("User {} successfully registered and waiting for approval", request.getUsername());
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
@@ -106,8 +107,21 @@ public class AuthController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            logger.error("Error during signin: {}", e.getMessage(), e);
-            // GlobalExceptionHandler će hendlati AuthException
+            logger.error("Error during signin for user '{}': {}", 
+                        request.getUsernameOrEmail(), e.getMessage(), e);
+            
+            // Vrati specifičnu grešku umesto da baciš exception
+            if (e.getMessage().contains("Invalid credentials") || 
+                e.getMessage().contains("User not found") ||
+                e.getMessage().contains("Incorrect password")) {
+                return ResponseEntity.status(401).body(new ErrorResponse(
+                    "AUTH_ERROR", 
+                    "Neispravno korisničko ime ili lozinka", 
+                    "/api/auth/signin"
+                ));
+            }
+            
+            // GlobalExceptionHandler će hendlati ostale AuthException
             throw e;
         }
     }
@@ -158,7 +172,27 @@ public class AuthController {
     
     @GetMapping("/test")
     public ResponseEntity<String> test() {
+        logger.info("Auth test endpoint called");
         return ResponseEntity.ok("Auth API is working!");
+    }
+    
+    @GetMapping("/debug")
+    public ResponseEntity<Map<String, Object>> debug() {
+        logger.info("Auth debug endpoint called");
+        Map<String, Object> debug = new HashMap<>();
+        debug.put("status", "OK");
+        debug.put("timestamp", java.time.LocalDateTime.now());
+        debug.put("endpoints", new String[]{
+            "/api/auth/signup",
+            "/api/auth/signin", 
+            "/api/auth/me",
+            "/api/auth/test",
+            "/api/auth/debug"
+        });
+        debug.put("cors_enabled", true);
+        debug.put("rate_limiting_enabled", true);
+        
+        return ResponseEntity.ok(debug);
     }
     
     @GetMapping("/check-username")

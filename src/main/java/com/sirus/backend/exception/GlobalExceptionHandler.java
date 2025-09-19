@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
             "USER_NOT_FOUND",
-            "Korisnik nije pronađen",
+            "Korisnik nije pronadjen",
             request.getDescription(false)
         );
         
@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
             "INTERNAL_ERROR",
-            "Došlo je do greške na serveru. Pokušajte ponovo.",
+            "Doslo je do greske na serveru. Pokusajte ponovo.",
             request.getDescription(false)
         );
         

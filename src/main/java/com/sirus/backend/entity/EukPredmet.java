@@ -11,10 +11,10 @@ import java.util.List;
 public class EukPredmet {
     
     public enum Status {
-        AKTIVAN("aktivan"),
-        ZATVOREN("zatvoren"),
-        NA_CEKANJU("na_cekanju"),
-        U_OBRADI("u_obradi");
+        АКТИВАН("активан"),
+        ЗАТВОРЕН("затворен"),
+        НА_ЧЕКАЊУ("на_чекању"),
+        У_ОБРАДИ("у_обради");
         
         private final String value;
         
@@ -36,7 +36,7 @@ public class EukPredmet {
                     return status;
                 }
             }
-            throw new IllegalArgumentException("Nepoznat status: " + input);
+            throw new IllegalArgumentException("Непознат статус: " + input);
         }
 
         @JsonValue
@@ -46,10 +46,10 @@ public class EukPredmet {
     }
     
     public enum Prioritet {
-        NIZAK("nizak"),
-        SREDNJI("srednji"),
-        VISOK("visok"),
-        KRITICAN("kritičan");
+        НИЗАК("низак"),
+        СРЕДЊИ("средњи"),
+        ВИСОК("висок"),
+        КРИТИЧАН("критичан");
         
         private final String value;
         
@@ -71,7 +71,7 @@ public class EukPredmet {
                     return p;
                 }
             }
-            throw new IllegalArgumentException("Nepoznat prioritet: " + input);
+            throw new IllegalArgumentException("Непознат приоритет: " + input);
         }
 
         @JsonValue

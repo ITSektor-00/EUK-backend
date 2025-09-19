@@ -16,13 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,11 +46,15 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/euk/**").permitAll() // Dozvoli EUK endpoint-e
+                .requestMatchers("/api/users/**").permitAll() // Dozvoli Users endpoint-e
+                .requestMatchers("/api/admin/**").permitAll() // Dozvoli Admin endpoint-e
+                .requestMatchers("/api/websocket/**").permitAll() // Dozvoli WebSocket test endpoint-e
+                .requestMatchers("/api/user-permissions/**").permitAll() // Dozvoli User Permissions endpoint-e
+                .requestMatchers("/ws/**").permitAll() // Dozvoli WebSocket endpoint-e
                 .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), 
-                           UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(corsFilter(), UsernamePasswordAuthenticationFilter.class);
+                           UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
@@ -100,50 +98,5 @@ public class ProductionSecurityConfig {
         return source;
     }
 
-    @Bean
-    public OncePerRequestFilter corsFilter() {
-        return new OncePerRequestFilter() {
-            @Override
-            protected void doFilterInternal(HttpServletRequest request, 
-                                          HttpServletResponse response, 
-                                          FilterChain filterChain) throws ServletException, IOException {
-                
-                // Get allowed domains from environment variable or use defaults
-                String allowedDomains = System.getenv("EUK_ALLOWED_DOMAINS");
-                String origin = request.getHeader("Origin");
-                
-                if (allowedDomains != null && !allowedDomains.isEmpty()) {
-                    String[] domains = allowedDomains.split(",");
-                    for (String domain : domains) {
-                        if (domain.trim().equals(origin)) {
-                            response.setHeader("Access-Control-Allow-Origin", origin);
-                            break;
-                        }
-                    }
-                } else {
-                    // Default domains
-                    if ("http://localhost:3000".equals(origin) || 
-                        "http://localhost:3001".equals(origin) ||
-                        "http://127.0.0.1:3000".equals(origin) ||
-                        "https://euk.vercel.app".equals(origin) ||
-                        "https://euk-it-sectors-projects.vercel.app".equals(origin)) {
-                        response.setHeader("Access-Control-Allow-Origin", origin);
-                    }
-                }
-                
-                response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-                response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type, X-Requested-With, Accept");
-                response.setHeader("Access-Control-Allow-Credentials", "true");
-                response.setHeader("Access-Control-Max-Age", "3600");
-                
-                // Handle preflight requests
-                if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    return;
-                }
-                
-                filterChain.doFilter(request, response);
-            }
-        };
-    }
+
 } 

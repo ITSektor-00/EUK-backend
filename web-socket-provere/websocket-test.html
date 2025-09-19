@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .error { background-color: #fff3cd; color: #856404; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        #messages { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔌 WebSocket Test</h1>
+    
+    <div id="status" class="status disconnected">Status: Disconnected</div>
+    
+    <button onclick="connect()">Connect (SockJS + Fallback)</button>
+    <button onclick="connectSockJS()">Connect SockJS Only</button>
+    <button onclick="connectNative()">Connect Native Only</button>
+    <button onclick="disconnect()">Disconnect</button>
+    <button onclick="sendMessage()">Send Test Message</button>
+    <button onclick="testBackend()">Test Backend</button>
+    <button onclick="clearMessages()">Clear Messages</button>
+    
+    <h3>Messages:</h3>
+    <div id="messages"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    
+    <script>
+        let socket = null;
+        let stompClient = null;
+        let connectionType = null;
+        
+        function connect() {
+            try {
+                // Test HTTP endpoint first
+                fetch('http://localhost:8080/ws/test')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('HTTP test successful:', data);
+                        addMessage('✅ Backend is running - HTTP test successful');
+                        connectWebSocket();
+                    })
+                    .catch(error => {
+                        console.error('HTTP test failed:', error);
+                        updateStatus('Backend not running or HTTP test failed', 'error');
+                        addMessage('❌ Backend not running or HTTP test failed: ' + error.message);
+                    });
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateStatus('Connection failed', 'error');
+                addMessage('🚨 Connection error: ' + error.message);
+            }
+        }
+        
+        function connectWebSocket() {
+            try {
+                addMessage('🔄 Attempting to connect via SockJS...');
+                
+                // Create SockJS connection (correct way for /ws endpoint)
+                socket = new SockJS('http://localhost:8080/ws');
+                stompClient = Stomp.over(socket);
+                
+                // Disable STOMP debug logging
+                stompClient.debug = function(str) {
+                    console.log('STOMP Debug:', str);
+                    addMessage('🔍 STOMP: ' + str);
+                };
+                
+                stompClient.connect({}, function(frame) {
+                    console.log('SockJS connection established!');
+                    updateStatus('SockJS Connected!', 'connected');
+                    addMessage('✅ SockJS connection established successfully');
+                    addMessage('📋 Frame: ' + frame);
+                    
+                    connectionType = 'SockJS';
+                    
+                    // Subscribe to test topic
+                    stompClient.subscribe('/topic/messages', function(message) {
+                        console.log('Message received:', message.body);
+                        addMessage('📨 Received: ' + message.body);
+                    });
+                    
+                    addMessage('🎯 Subscribed to /topic/messages');
+                    
+                }, function(error) {
+                    console.error('SockJS connection failed:', error);
+                    updateStatus('SockJS Connection Failed', 'error');
+                    addMessage('❌ SockJS connection failed: ' + error);
+                    
+                    // Try native WebSocket as fallback
+                    addMessage('🔄 Trying native WebSocket as fallback...');
+                    connectNativeWebSocket();
+                });
+                
+            } catch (error) {
+                console.error('SockJS connection error:', error);
+                updateStatus('SockJS Connection Error', 'error');
+                addMessage('🚨 SockJS connection error: ' + error.message);
+            }
+        }
+        
+        function connectNativeWebSocket() {
+            try {
+                addMessage('🔄 Attempting to connect via Native WebSocket...');
+                
+                // Create native WebSocket connection to /ws-native endpoint
+                socket = new WebSocket('ws://localhost:8080/ws-native');
+                stompClient = Stomp.over(socket);
+                
+                stompClient.debug = function(str) {
+                    console.log('STOMP Debug:', str);
+                    addMessage('🔍 STOMP: ' + str);
+                };
+                
+                stompClient.connect({}, function(frame) {
+                    console.log('Native WebSocket connection established!');
+                    updateStatus('Native WebSocket Connected!', 'connected');
+                    addMessage('✅ Native WebSocket connection established successfully');
+                    addMessage('📋 Frame: ' + frame);
+                    
+                    connectionType = 'Native';
+                    
+                    // Subscribe to test topic
+                    stompClient.subscribe('/topic/messages', function(message) {
+                        console.log('Message received:', message.body);
+                        addMessage('📨 Received: ' + message.body);
+                    });
+                    
+                    addMessage('🎯 Subscribed to /topic/messages');
+                    
+                }, function(error) {
+                    console.error('Native WebSocket connection failed:', error);
+                    updateStatus('All Connection Methods Failed', 'error');
+                    addMessage('❌ Native WebSocket connection also failed: ' + error);
+                });
+                
+            } catch (error) {
+                console.error('Native WebSocket connection error:', error);
+                updateStatus('Native WebSocket Connection Error', 'error');
+                addMessage('🚨 Native WebSocket connection error: ' + error.message);
+            }
+        }
+        
+        function disconnect() {
+            if (stompClient && connectionType) {
+                stompClient.disconnect(function() {
+                    console.log('Disconnected successfully');
+                    updateStatus('Disconnected', 'disconnected');
+                    addMessage('🔌 Manually disconnected from ' + connectionType);
+                    connectionType = null;
+                    socket = null;
+                    stompClient = null;
+                });
+            } else {
+                addMessage('❌ Not connected');
+            }
+        }
+        
+        function sendMessage() {
+            if (stompClient && connectionType) {
+                const message = {
+                    content: `Test message from ${connectionType} at ${new Date().toLocaleTimeString()}`,
+                    timestamp: new Date().toISOString()
+                };
+                
+                stompClient.send('/app/message', {}, JSON.stringify(message));
+                addMessage('📤 Sent via ' + connectionType + ': ' + JSON.stringify(message));
+            } else {
+                addMessage('❌ Cannot send message - not connected');
+            }
+        }
+        
+        function updateStatus(message, className) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = 'Status: ' + message;
+            statusDiv.className = 'status ' + className;
+        }
+        
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function connectSockJS() {
+            try {
+                addMessage('🔄 Attempting SockJS connection only...');
+                
+                socket = new SockJS('http://localhost:8080/ws');
+                stompClient = Stomp.over(socket);
+                
+                stompClient.debug = function(str) {
+                    addMessage('🔍 STOMP: ' + str);
+                };
+                
+                stompClient.connect({}, function(frame) {
+                    updateStatus('SockJS Connected!', 'connected');
+                    addMessage('✅ SockJS connection established');
+                    connectionType = 'SockJS';
+                    
+                    stompClient.subscribe('/topic/messages', function(message) {
+                        addMessage('📨 Received: ' + message.body);
+                    });
+                }, function(error) {
+                    updateStatus('SockJS Failed', 'error');
+                    addMessage('❌ SockJS connection failed: ' + error);
+                });
+            } catch (error) {
+                addMessage('🚨 SockJS error: ' + error.message);
+            }
+        }
+        
+        function connectNative() {
+            try {
+                addMessage('🔄 Attempting Native WebSocket connection only...');
+                
+                socket = new WebSocket('ws://localhost:8080/ws-native');
+                stompClient = Stomp.over(socket);
+                
+                stompClient.debug = function(str) {
+                    addMessage('🔍 STOMP: ' + str);
+                };
+                
+                stompClient.connect({}, function(frame) {
+                    updateStatus('Native WebSocket Connected!', 'connected');
+                    addMessage('✅ Native WebSocket connection established');
+                    connectionType = 'Native';
+                    
+                    stompClient.subscribe('/topic/messages', function(message) {
+                        addMessage('📨 Received: ' + message.body);
+                    });
+                }, function(error) {
+                    updateStatus('Native WebSocket Failed', 'error');
+                    addMessage('❌ Native WebSocket connection failed: ' + error);
+                });
+            } catch (error) {
+                addMessage('🚨 Native WebSocket error: ' + error.message);
+            }
+        }
+        
+        function testBackend() {
+            addMessage('🔄 Testing backend endpoints...');
+            
+            // Test WebSocket health
+            fetch('http://localhost:8080/ws/health')
+                .then(response => response.json())
+                .then(data => {
+                    addMessage('✅ WebSocket health: ' + JSON.stringify(data));
+                })
+                .catch(error => {
+                    addMessage('❌ WebSocket health failed: ' + error.message);
+                });
+            
+            // Test WebSocket test endpoint
+            fetch('http://localhost:8080/ws/test')
+                .then(response => response.json())
+                .then(data => {
+                    addMessage('✅ WebSocket test: ' + JSON.stringify(data));
+                })
+                .catch(error => {
+                    addMessage('❌ WebSocket test failed: ' + error.message);
+                });
+            
+            // Test connection test endpoint
+            fetch('http://localhost:8080/ws/connection-test')
+                .then(response => response.json())
+                .then(data => {
+                    addMessage('✅ Connection test: ' + JSON.stringify(data));
+                })
+                .catch(error => {
+                    addMessage('❌ Connection test failed: ' + error.message);
+                });
+        }
+        
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+        
+        // Auto-connect on page load
+        window.onload = function() {
+            addMessage('🚀 Page loaded, ready to test WebSocket');
+            addMessage('💡 Click "Test Backend" first to check if backend is running');
+        };
+    </script>
+</body>
+</html>

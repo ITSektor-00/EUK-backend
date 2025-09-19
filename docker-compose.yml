@@ -5,11 +5,11 @@ services:
     image: sirus-backend:latest
     container_name: sirus-backend
     ports:
-      - "8080:8080"
+      - "8081:8080"
     env_file:
       - .env
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=dev
       - EUK_ALLOWED_DOMAINS=https://euk.vercel.app,https://euk-it-sectors-projects.vercel.app
       - EUK_RATE_LIMIT_ENABLED=true
       - EUK_RATE_LIMIT_MAX_REQUESTS=150

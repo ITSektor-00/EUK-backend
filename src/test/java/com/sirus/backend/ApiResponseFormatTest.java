@@ -27,8 +27,8 @@ class ApiResponseFormatTest {
         EukPredmetDto predmet = new EukPredmetDto();
         predmet.setPredmetId(123);
         predmet.setNazivPredmeta("Test Predmet");
-        predmet.setStatus(EukPredmet.Status.AKTIVAN);
-        predmet.setPrioritet(EukPredmet.Prioritet.SREDNJI);
+        predmet.setStatus(EukPredmet.Status.АКТИВАН);
+        predmet.setPrioritet(EukPredmet.Prioritet.СРЕДЊИ);
         predmet.setOdgovornaOsoba("Pera Perić");
         predmet.setKategorijaId(5);
         predmet.setKategorijaNaziv("Test Kategorija");
@@ -63,8 +63,8 @@ class ApiResponseFormatTest {
         EukPredmetDto predmet = new EukPredmetDto();
         predmet.setPredmetId(123);
         predmet.setNazivPredmeta("Test Predmet");
-        predmet.setStatus(EukPredmet.Status.AKTIVAN);
-        predmet.setPrioritet(EukPredmet.Prioritet.SREDNJI);
+        predmet.setStatus(EukPredmet.Status.АКТИВАН);
+        predmet.setPrioritet(EukPredmet.Prioritet.СРЕДЊИ);
         predmet.setOdgovornaOsoba("Pera Perić");
         predmet.setKategorijaId(5);
         predmet.setKategorijaNaziv("Test Kategorija");

@@ -26,11 +26,11 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
     
-    @Column(length = 20)
-    private String role = "USER";
+    @Column(length = 50)
+    private String role = "obradjivaci predmeta";
     
     @Column
-    private Boolean isActive = true;
+    private Boolean isActive = false;
     
     @Column
     private LocalDateTime createdAt;
@@ -129,4 +129,5 @@ public class User {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+    
 } 

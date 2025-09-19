@@ -11,7 +11,6 @@ import com.sirus.backend.exception.AuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
@@ -28,11 +27,11 @@ public class AuthService {
     public AuthResponse signUp(SignUpRequest request) {
         // Proveri da li korisnik već postoji
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new AuthException("Korisničko ime već postoji", "USERNAME_EXISTS");
+            throw new AuthException("Korisnicko ime vec postoji", "USERNAME_EXISTS");
         }
         
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AuthException("Email adresa već postoji", "EMAIL_EXISTS");
+            throw new AuthException("Email adresa vec postoji", "EMAIL_EXISTS");
         }
         
         // Kreiraj novog korisnika
@@ -42,13 +41,16 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
+        user.setActive(false); // Eksplicitno postavite na false - čeka odobrenje
         
         User savedUser = userRepository.save(user);
         
         // Generiši JWT token
         String token = jwtService.generateToken(savedUser);
         
-        return createAuthResponse(savedUser, token);
+        AuthResponse response = createAuthResponse(savedUser, token);
+        response.setMessage("Registracija je uspesna! Vas nalog ceka odobrenje od administratora.");
+        return response;
     }
     
     public AuthResponse signIn(SignInRequest request) {
@@ -65,17 +67,17 @@ public class AuthService {
         
         // Ako korisnik nije pronađen
         if (user == null) {
-            throw new AuthException("Pogrešno korisničko ime ili email", "INVALID_USERNAME_EMAIL");
+            throw new AuthException("Pogresno korisnicko ime ili email", "INVALID_USERNAME_EMAIL");
         }
         
         // Proveri lozinku
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new AuthException("Pogrešna lozinka", "INVALID_PASSWORD");
+            throw new AuthException("Pogresna lozinka", "INVALID_PASSWORD");
         }
         
         // Proveri da li je korisnik aktivan
         if (!user.isActive()) {
-            throw new AuthException("Nalog je deaktiviran", "ACCOUNT_DEACTIVATED");
+            throw new AuthException("Vas nalog ceka odobrenje od administratora", "ACCOUNT_PENDING_APPROVAL");
         }
         
         // Generiši JWT token
@@ -91,19 +93,19 @@ public class AuthService {
     public UpdateProfileResponse updateProfile(String username, UpdateProfileRequest request) {
         // Pronađi korisnika
         User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> new AuthException("Korisnik nije pronađen", "USER_NOT_FOUND"));
+            .orElseThrow(() -> new AuthException("Korisnik nije pronadjen", "USER_NOT_FOUND"));
         
         // Proveri da li username već postoji kod drugog korisnika (ako se menja)
         if (request.getUsername() != null && !request.getUsername().trim().isEmpty() && 
             !user.getUsername().equals(request.getUsername()) && 
             userRepository.existsByUsername(request.getUsername())) {
-            throw new AuthException("Korisničko ime već postoji", "USERNAME_EXISTS");
+            throw new AuthException("Korisnicko ime vec postoji", "USERNAME_EXISTS");
         }
         
         // Proveri da li email već postoji kod drugog korisnika
         if (!user.getEmail().equals(request.getEmail()) && 
             userRepository.existsByEmail(request.getEmail())) {
-            throw new AuthException("Email adresa već postoji", "EMAIL_EXISTS");
+            throw new AuthException("Email adresa vec postoji", "EMAIL_EXISTS");
         }
         
         // Ažuriraj podatke
@@ -135,7 +137,7 @@ public class AuthService {
             updatedUser.getLastName(),
             updatedUser.getRole(),
             updatedUser.isActive(),
-            "Profil je uspešno ažuriran",
+            "Profil je uspesno azuriran",
             newToken // Dodaj novi token u response
         );
     }
