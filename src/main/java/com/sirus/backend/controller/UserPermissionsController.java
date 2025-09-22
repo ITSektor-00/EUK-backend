@@ -52,7 +52,7 @@ public class UserPermissionsController {
     }
     
     /**
-     * Generiše dozvole na osnovu role korisnika
+     * Generiše dozvole na osnovu role korisnika (pojednostavljeni sistem)
      */
     private Map<String, Object> generateUserPermissions(User user) {
         Map<String, Object> permissions = new HashMap<>();
@@ -63,25 +63,21 @@ public class UserPermissionsController {
         permissions.put("role", user.getRole());
         permissions.put("isActive", user.isActive());
         
-        // Role-based permissions
+        // Pojednostavljeni role-based permissions
         Map<String, Boolean> routePermissions = new HashMap<>();
         
-        if ("admin".equals(user.getRole())) {
-            // Admin ima pristup svim rutama
+        if (user.isAdmin()) {
+            // Admin ima pristup admin dashboard-u
             routePermissions.put("admin", true);
-            routePermissions.put("users", true);
+            routePermissions.put("adminDashboard", true);
+            routePermissions.put("userManagement", true);
             routePermissions.put("euk", true);
-            routePermissions.put("reports", true);
-            routePermissions.put("settings", true);
-            routePermissions.put("analytics", true);
         } else {
-            // Obicni korisnici imaju ogranicen pristup
+            // Korisnici imaju pristup samo EUK funkcionalnostima
             routePermissions.put("admin", false);
-            routePermissions.put("users", false);
+            routePermissions.put("adminDashboard", false);
+            routePermissions.put("userManagement", false);
             routePermissions.put("euk", true);
-            routePermissions.put("reports", false);
-            routePermissions.put("settings", false);
-            routePermissions.put("analytics", false);
         }
         
         // EUK-specific permissions (svi korisnici imaju pristup)
@@ -92,11 +88,11 @@ public class UserPermissionsController {
         eukPermissions.put("create", true);
         eukPermissions.put("read", true);
         eukPermissions.put("update", true);
-        eukPermissions.put("delete", user.getRole().equals("admin")); // Samo admin može brisati
+        eukPermissions.put("delete", user.isAdmin()); // Samo admin može brisati
         
         permissions.put("routes", routePermissions);
         permissions.put("euk", eukPermissions);
-        permissions.put("canDelete", user.getRole().equals("admin"));
+        permissions.put("canDelete", user.isAdmin());
         permissions.put("canManageUsers", user.getRole().equals("admin"));
         permissions.put("canViewAnalytics", user.getRole().equals("admin"));
         

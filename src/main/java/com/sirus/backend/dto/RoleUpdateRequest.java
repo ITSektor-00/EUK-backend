@@ -1,10 +1,12 @@
 package com.sirus.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Pattern;
 
 public class RoleUpdateRequest {
     
     @JsonProperty("role")
+    @Pattern(regexp = "^(admin|korisnik)$", message = "Role must be either 'admin' or 'korisnik'")
     private String role;
     
     public RoleUpdateRequest() {}

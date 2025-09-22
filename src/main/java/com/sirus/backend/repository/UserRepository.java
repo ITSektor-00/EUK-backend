@@ -41,6 +41,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     long countByIsActiveFalse();
     
+    long countByRole(String role);
+    
     // Pretraga po više polja
     @Query("SELECT u FROM User u WHERE " +
            "LOWER(u.username) LIKE LOWER(CONCAT('%', :search, '%')) OR " +

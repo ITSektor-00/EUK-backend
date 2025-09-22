@@ -3,6 +3,30 @@ package com.sirus.backend.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+enum UserRole {
+    ADMIN("admin"),
+    KORISNIK("korisnik");
+    
+    private final String value;
+    
+    UserRole(String value) {
+        this.value = value;
+    }
+    
+    public String getValue() {
+        return value;
+    }
+    
+    public static UserRole fromString(String role) {
+        for (UserRole userRole : UserRole.values()) {
+            if (userRole.value.equals(role)) {
+                return userRole;
+            }
+        }
+        return KORISNIK; // default
+    }
+}
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -27,7 +51,7 @@ public class User {
     private String lastName;
     
     @Column(length = 50)
-    private String role = "obradjivaci predmeta";
+    private String role = "korisnik";
     
     @Column
     private Boolean isActive = false;
@@ -128,6 +152,23 @@ public class User {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    // Helper methods for role checking
+    public boolean isAdmin() {
+        return "admin".equals(this.role);
+    }
+    
+    public boolean isKorisnik() {
+        return "korisnik".equals(this.role);
+    }
+    
+    public void setRoleAsAdmin() {
+        this.role = "admin";
+    }
+    
+    public void setRoleAsKorisnik() {
+        this.role = "korisnik";
     }
     
 } 

@@ -148,7 +148,7 @@ public class UserService {
         
         // Validacija role
         if (!isValidRole(newRole)) {
-            throw new RuntimeException("Invalid role: " + newRole + ". Valid roles are: admin, obradjivaci predmeta, potpisnik");
+            throw new RuntimeException("Invalid role: " + newRole + ". Valid roles are: admin, korisnik");
         }
         
         user.setRole(newRole);
@@ -184,13 +184,11 @@ public class UserService {
     }
     
     /**
-     * Validacija role
+     * Validacija role (pojednostavljeni sistem)
      */
     private boolean isValidRole(String role) {
         return role != null && (
-            role.equals("admin") || role.equals("ADMIN") ||
-            role.equals("obradjivaci predmeta") || role.equals("OBRADJIVAC") ||
-            role.equals("potpisnik") || role.equals("POTPISNIK")
+            role.equals("admin") || role.equals("korisnik")
         );
     }
     
@@ -217,5 +215,57 @@ public class UserService {
         // Use updateUserRole instead
         return userRepository.findById(userId)
                 .map(user -> convertToDto(user));
+    }
+    
+    /**
+     * Broj korisnika po roli (pojednostavljeni sistem)
+     */
+    public long getUserCountByRole(String role) {
+        if (role == null) {
+            return 0;
+        }
+        return userRepository.countByRole(role);
+    }
+    
+    /**
+     * Dohvatanje aktivnih korisnika sa paginacijom
+     */
+    public Page<UserDto> findActiveUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findByIsActive(true, pageable)
+                .map(this::convertToDto);
+    }
+    
+    /**
+     * Dohvatanje korisnika koji čekaju odobrenje sa paginacijom
+     */
+    public Page<UserDto> findPendingUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findByIsActive(false, pageable)
+                .map(this::convertToDto);
+    }
+    
+    /**
+     * Ažuriranje statusa korisnika (aktiviranje/deaktiviranje)
+     */
+    public UserDto updateUserStatus(Long userId, Boolean isActive) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        
+        user.setActive(isActive);
+        User updatedUser = userRepository.save(user);
+        
+        return convertToDto(updatedUser);
+    }
+    
+    /**
+     * Brisanje korisnika
+     */
+    public boolean deleteUser(Long userId) {
+        if (userRepository.existsById(userId)) {
+            userRepository.deleteById(userId);
+            return true;
+        }
+        return false;
     }
 }
