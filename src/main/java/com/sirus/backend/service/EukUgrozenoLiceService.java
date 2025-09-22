@@ -133,6 +133,11 @@ public class EukUgrozenoLiceService {
         return convertToDto(ugrozenoLice);
     }
     
+    public long countAll() {
+        logger.info("Counting total EUK ugrožena lica");
+        return ugrozenoLiceRepository.count();
+    }
+    
     private void validateUgrozenoLiceData(EukUgrozenoLiceDto dto) {
         if (dto.getDatumRodjenja() != null && dto.getDatumRodjenja().isAfter(LocalDate.now())) {
             throw new EukException("Datum rođenja ne može biti u budućnosti");

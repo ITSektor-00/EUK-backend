@@ -52,15 +52,21 @@ public class EukUgrozenoLiceController {
                 ));
             }
             
+            logger.info("Calling ugrozenoLiceService.findAll with page: {}, size: {}", page, size);
             Page<EukUgrozenoLiceDto> ugrozenaLica = ugrozenoLiceService.findAll(page, size);
             logger.info("Successfully fetched {} ugrožena lica for page {}", ugrozenaLica.getContent().size(), page);
             return ResponseEntity.ok(PaginatedResponse.from(ugrozenaLica));
         } catch (Exception e) {
-            logger.error("Error fetching ugrožena lica: {}", e.getMessage(), e);
+            logger.error("DETAILED ERROR fetching ugrožena lica: {}", e.getMessage(), e);
+            logger.error("Error class: {}", e.getClass().getSimpleName());
+            if (e.getCause() != null) {
+                logger.error("Root cause: {}", e.getCause().getMessage());
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
                 "error", "INTERNAL_ERROR",
-                "message", "Greška pri dohvatanju podataka",
-                "path", "/api/euk/ugrozena-lica"
+                "message", "Greška pri dohvatanju podataka: " + e.getMessage(),
+                "path", "/api/euk/ugrozena-lica",
+                "details", e.getClass().getSimpleName()
             ));
         }
     }
@@ -148,6 +154,18 @@ public class EukUgrozenoLiceController {
         test.put("status", "OK");
         test.put("service", "EUK Ugrožena Lica API");
         test.put("timestamp", java.time.LocalDateTime.now());
+        
+        // Test database connection
+        try {
+            long count = ugrozenoLiceService.countAll();
+            test.put("database_status", "CONNECTED");
+            test.put("total_records", count);
+        } catch (Exception e) {
+            test.put("database_status", "ERROR");
+            test.put("database_error", e.getMessage());
+            logger.error("Database test failed: {}", e.getMessage(), e);
+        }
+        
         test.put("endpoints", new String[]{
             "GET /api/euk/ugrozena-lica",
             "GET /api/euk/ugrozena-lica/{id}",

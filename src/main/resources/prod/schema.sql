@@ -50,26 +50,39 @@ CREATE TABLE IF NOT EXISTS "EUK".predmet (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- EUK Ugrozeno Lice tabela
+-- EUK Ugrozeno Lice tabela (ažurirano za Entity kompatibilnost)
 CREATE TABLE IF NOT EXISTS "EUK".ugrozeno_lice (
-    lice_id SERIAL PRIMARY KEY,
+    ugrozeno_lice_id SERIAL PRIMARY KEY,
     ime VARCHAR(100) NOT NULL,
     prezime VARCHAR(100) NOT NULL,
-    datum_rodjenja DATE,
-    mesto_rodjenja VARCHAR(100),
-    adresa TEXT,
-    telefon VARCHAR(20),
-    email VARCHAR(100),
+    jmbg CHAR(13) UNIQUE NOT NULL,
+    datum_rodjenja DATE NOT NULL,
+    drzava_rodjenja VARCHAR(100) NOT NULL,
+    mesto_rodjenja VARCHAR(100) NOT NULL,
+    opstina_rodjenja VARCHAR(100) NOT NULL,
     predmet_id INTEGER REFERENCES "EUK".predmet(predmet_id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Kreiraj indexe za EUK tabele
+-- KRITIČNI INDEXI ZA 30,000+ ZAPISA
 CREATE INDEX IF NOT EXISTS idx_euk_kategorija_naziv ON "EUK".kategorija(naziv);
 CREATE INDEX IF NOT EXISTS idx_euk_predmet_kategorija ON "EUK".predmet(kategorija_id);
 CREATE INDEX IF NOT EXISTS idx_euk_predmet_status ON "EUK".predmet(status);
+CREATE INDEX IF NOT EXISTS idx_euk_predmet_prioritet ON "EUK".predmet(prioritet);
+CREATE INDEX IF NOT EXISTS idx_euk_predmet_odgovorna_osoba ON "EUK".predmet(odgovorna_osoba);
+
+-- PERFORMANCE INDEXI ZA UGROŽENA LICA
+CREATE UNIQUE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_jmbg ON "EUK".ugrozeno_lice(jmbg);
 CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_predmet ON "EUK".ugrozeno_lice(predmet_id);
+CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_ime_prezime ON "EUK".ugrozeno_lice(ime, prezime);
+CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_datum_rodjenja ON "EUK".ugrozeno_lice(datum_rodjenja);
+CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_mesto ON "EUK".ugrozeno_lice(mesto_rodjenja);
+CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_created_at ON "EUK".ugrozeno_lice(created_at);
+
+-- COMPOSITE INDEX za česte kombinacije pretrage
+CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_predmet_ime ON "EUK".ugrozeno_lice(predmet_id, ime);
+CREATE INDEX IF NOT EXISTS idx_euk_ugrozeno_lice_datum_mesto ON "EUK".ugrozeno_lice(datum_rodjenja, mesto_rodjenja);
 
 -- Dodaj test podatke
 INSERT INTO "EUK".kategorija (naziv) VALUES 

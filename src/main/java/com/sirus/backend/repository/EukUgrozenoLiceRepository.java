@@ -15,7 +15,8 @@ public interface EukUgrozenoLiceRepository extends JpaRepository<EukUgrozenoLice
     
     @Query("SELECT u, p.nazivPredmeta, p.status " +
            "FROM EukUgrozenoLice u " +
-           "LEFT JOIN u.predmet p")
+           "LEFT JOIN u.predmet p " +
+           "ORDER BY u.ugrozenoLiceId DESC")
     Page<Object[]> findAllWithPredmetInfo(Pageable pageable);
     
     @Query("SELECT u, p.nazivPredmeta, p.status " +
@@ -32,4 +33,24 @@ public interface EukUgrozenoLiceRepository extends JpaRepository<EukUgrozenoLice
     
     @Query("SELECT u FROM EukUgrozenoLice u WHERE u.ime LIKE %:ime% OR u.prezime LIKE %:prezime%")
     List<EukUgrozenoLice> findByImeOrPrezimeContaining(@Param("ime") String ime, @Param("prezime") String prezime);
+    
+    // OPTIMIZED search queries for large datasets
+    @Query("SELECT u, p.nazivPredmeta, p.status " +
+           "FROM EukUgrozenoLice u " +
+           "LEFT JOIN u.predmet p " +
+           "WHERE (:jmbg IS NULL OR u.jmbg = :jmbg) " +
+           "AND (:ime IS NULL OR LOWER(u.ime) LIKE LOWER(CONCAT('%', :ime, '%'))) " +
+           "AND (:prezime IS NULL OR LOWER(u.prezime) LIKE LOWER(CONCAT('%', :prezime, '%'))) " +
+           "AND (:predmetId IS NULL OR u.predmet.predmetId = :predmetId) " +
+           "ORDER BY u.ugrozenoLiceId DESC")
+    Page<Object[]> findWithFilters(
+        @Param("jmbg") String jmbg,
+        @Param("ime") String ime, 
+        @Param("prezime") String prezime,
+        @Param("predmetId") Integer predmetId,
+        Pageable pageable);
+        
+    // Count query for performance
+    @Query("SELECT COUNT(u) FROM EukUgrozenoLice u WHERE u.predmet.predmetId = :predmetId")
+    Long countByPredmetId(@Param("predmetId") Integer predmetId);
 }
