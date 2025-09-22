@@ -12,17 +12,17 @@ services:
       - key: PORT
         value: 8080
       - key: DATABASE_URL
-        sync: false  # Set in Render dashboard
+        value: jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres
       - key: DATABASE_USERNAME
-        sync: false  # Set in Render dashboard
+        value: postgres.wynfrojhkzddzjbrpdcr
       - key: DATABASE_PASSWORD
-        sync: false  # Set in Render dashboard
+        value: a*Xxk3B7?HF8&3r
       - key: JWT_SECRET
-        sync: false  # Set in Render dashboard
+        value: oieoknjsemblboenejfkf681616fdsfdsfscvxv
       - key: JWT_EXPIRATION
         value: 86400000
       - key: ADMIN_PASSWORD
-        sync: false  # Set in Render dashboard
+        value: moja-admin-lozinka123!!_
       - key: SECURITY_HEADERS_ENABLED
         value: true
       - key: EUK_ALLOWED_DOMAINS
@@ -30,4 +30,8 @@ services:
       - key: EUK_RATE_LIMIT_ENABLED
         value: true
       - key: EUK_RATE_LIMIT_MAX_REQUESTS
-        value: 150 
+        value: 150
+      - key: JAVA_OPTS
+        value: "-Xms512m -Xmx1g -XX:+UseG1GC"
+      - key: MAVEN_OPTS
+        value: "-Xmx512m" 
