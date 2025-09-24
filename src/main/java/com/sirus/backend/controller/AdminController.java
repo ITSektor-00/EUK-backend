@@ -199,6 +199,52 @@ public class AdminController {
     }
     
     /**
+     * POST /api/admin/users/{id}/approve - Odobravanje korisnika
+     */
+    @PostMapping("/users/{id}/approve")
+    public ResponseEntity<?> approveUser(@PathVariable Long id) {
+        logger.info("POST /api/admin/users/{}/approve - Approving user", id);
+        
+        try {
+            UserDto approvedUser = userService.approveUser(id);
+            if (approvedUser != null) {
+                logger.info("Successfully approved user - userId: {}", id);
+                return ResponseEntity.ok(approvedUser);
+            } else {
+                logger.error("User not found for approval - userId: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            logger.error("Error approving user: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(AdminErrorResponse.serverError("Failed to approve user"));
+        }
+    }
+    
+    /**
+     * POST /api/admin/users/{id}/reject - Odbijanje korisnika
+     */
+    @PostMapping("/users/{id}/reject")
+    public ResponseEntity<?> rejectUser(@PathVariable Long id) {
+        logger.info("POST /api/admin/users/{}/reject - Rejecting user", id);
+        
+        try {
+            UserDto rejectedUser = userService.rejectUser(id);
+            if (rejectedUser != null) {
+                logger.info("Successfully rejected user - userId: {}", id);
+                return ResponseEntity.ok(rejectedUser);
+            } else {
+                logger.error("User not found for rejection - userId: {}", id);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            logger.error("Error rejecting user: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(AdminErrorResponse.serverError("Failed to reject user"));
+        }
+    }
+    
+    /**
      * DELETE /api/admin/users/{id} - Brisanje korisnika
      */
     @DeleteMapping("/users/{id}")

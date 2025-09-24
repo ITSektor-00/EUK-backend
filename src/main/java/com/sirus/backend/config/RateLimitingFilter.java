@@ -4,6 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -14,14 +16,22 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
+@ConditionalOnProperty(name = "euk.rate-limit.enabled", havingValue = "true", matchIfMissing = false)
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final ConcurrentHashMap<String, AtomicInteger> requestCounts = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> lastResetTime = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> lastRequestTime = new ConcurrentHashMap<>();
     
-    private static final int MAX_REQUESTS_PER_MINUTE = 200; // Povećano za normalne zahteve
-    private static final long RESET_INTERVAL = 60000; // 1 minute
+    @Value("${euk.rate-limit.max-requests:200}")
+    private int maxRequestsPerMinute;
+    
+    @Value("${euk.rate-limit.window-minutes:1}")
+    private int windowMinutes;
+    
+    private long getResetInterval() {
+        return windowMinutes * 60000L; // Convert minutes to milliseconds
+    }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 
@@ -54,26 +64,31 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         
         int maxRequests;
         if (isEukDomain) {
-            maxRequests = 250; // Povećano za EUK domene
+            maxRequests = Math.max(250, maxRequestsPerMinute); // Povećano za EUK domene
         } else {
-            maxRequests = MAX_REQUESTS_PER_MINUTE;
+            maxRequests = maxRequestsPerMinute;
         }
         
         long currentTime = System.currentTimeMillis();
         
-        // Proveri duplicate requests (isti endpoint u kratkom vremenu)
-        Long lastTime = lastRequestTime.get(key);
-        if (lastTime != null && (currentTime - lastTime) < 100) { // Smanjeno na 100ms za duplicate protection
-            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"Duplicate request\",\"message\":\"Please wait before retrying\",\"retryAfter\":1}");
-            return;
+        // Izuzmi EUK endpoint-e od duplicate request protection-a
+        boolean isEukEndpoint = request.getRequestURI().startsWith("/api/euk/");
+        
+        // Proveri duplicate requests (isti endpoint u kratkom vremenu) - samo za non-EUK endpoint-e
+        if (!isEukEndpoint) {
+            Long lastTime = lastRequestTime.get(key);
+            if (lastTime != null && (currentTime - lastTime) < 100) { // Smanjeno na 100ms za duplicate protection
+                response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\":\"Duplicate request\",\"message\":\"Please wait before retrying\",\"retryAfter\":1}");
+                return;
+            }
+            lastRequestTime.put(key, currentTime);
         }
-        lastRequestTime.put(key, currentTime);
         
         // Reset counter if interval has passed
         lastResetTime.computeIfAbsent(key, k -> currentTime);
-        if (currentTime - lastResetTime.get(key) > RESET_INTERVAL) {
+        if (currentTime - lastResetTime.get(key) > getResetInterval()) {
             requestCounts.remove(key);
             lastResetTime.put(key, currentTime);
         }
@@ -85,14 +100,14 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         if (currentCount > maxRequests) {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType("application/json");
-            response.getWriter().write("{\"error\":\"Rate limit exceeded\",\"message\":\"Please try again later\",\"retryAfter\":" + (RESET_INTERVAL/1000) + "}");
+            response.getWriter().write("{\"error\":\"Rate limit exceeded\",\"message\":\"Please try again later\",\"retryAfter\":" + (getResetInterval()/1000) + "}");
             return;
         }
         
         // Add rate limit headers
         response.setHeader("X-RateLimit-Limit", String.valueOf(maxRequests));
         response.setHeader("X-RateLimit-Remaining", String.valueOf(maxRequests - currentCount));
-        response.setHeader("X-RateLimit-Reset", String.valueOf(lastResetTime.get(key) + RESET_INTERVAL));
+        response.setHeader("X-RateLimit-Reset", String.valueOf(lastResetTime.get(key) + getResetInterval()));
         
         filterChain.doFilter(request, response);
     }

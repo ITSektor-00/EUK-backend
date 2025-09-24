@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Table(name = "predmet", schema = "EUK")
@@ -109,8 +108,6 @@ public class EukPredmet {
     @JoinColumn(name = "kategorija_id", nullable = false)
     private EukKategorija kategorija;
     
-    @OneToMany(mappedBy = "predmet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<EukUgrozenoLice> ugrozenaLica;
     
     // Getters and Setters
     public Integer getPredmetId() {
@@ -177,11 +174,4 @@ public class EukPredmet {
         this.kategorija = kategorija;
     }
     
-    public List<EukUgrozenoLice> getUgrozenaLica() {
-        return ugrozenaLica;
-    }
-    
-    public void setUgrozenaLica(List<EukUgrozenoLice> ugrozenaLica) {
-        this.ugrozenaLica = ugrozenaLica;
-    }
 }

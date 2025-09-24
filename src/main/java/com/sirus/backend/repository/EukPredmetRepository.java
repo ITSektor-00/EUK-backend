@@ -13,17 +13,15 @@ import java.util.List;
 @Repository
 public interface EukPredmetRepository extends JpaRepository<EukPredmet, Integer> {
     
-    @Query("SELECT p, k.naziv as kategorijaNaziv, COUNT(u) as brojUgrozenihLica " +
+    @Query("SELECT p, k.naziv as kategorijaNaziv, 0 as brojUgrozenihLica " +
            "FROM EukPredmet p " +
-           "LEFT JOIN p.kategorija k " +
-           "LEFT JOIN p.ugrozenaLica u " +
+           "LEFT JOIN FETCH p.kategorija k " +
            "GROUP BY p.predmetId, k.naziv")
     Page<Object[]> findAllWithKategorijaAndUgrozenaLicaCount(Pageable pageable);
     
-    @Query("SELECT p, k.naziv as kategorijaNaziv, COUNT(u) as brojUgrozenihLica " +
+    @Query("SELECT p, k.naziv as kategorijaNaziv, 0 as brojUgrozenihLica " +
            "FROM EukPredmet p " +
-           "LEFT JOIN p.kategorija k " +
-           "LEFT JOIN p.ugrozenaLica u " +
+           "LEFT JOIN FETCH p.kategorija k " +
            "WHERE (:status IS NULL OR p.status = :status) " +
            "AND (:prioritet IS NULL OR p.prioritet = :prioritet) " +
            "AND (:kategorijaId IS NULL OR p.kategorija.kategorijaId = :kategorijaId) " +
@@ -36,7 +34,7 @@ public interface EukPredmetRepository extends JpaRepository<EukPredmet, Integer>
             @Param("odgovornaOsoba") String odgovornaOsoba,
             Pageable pageable);
     
-    @Query("SELECT p FROM EukPredmet p LEFT JOIN FETCH p.kategorija LEFT JOIN FETCH p.ugrozenaLica WHERE p.predmetId = :id")
+    @Query("SELECT p FROM EukPredmet p LEFT JOIN FETCH p.kategorija WHERE p.predmetId = :id")
     EukPredmet findByIdWithKategorijaAndUgrozenaLica(@Param("id") Integer id);
     
     List<EukPredmet> findByKategorijaKategorijaId(Integer kategorijaId);

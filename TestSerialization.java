@@ -46,22 +46,32 @@ class EukPredmetDto {
     public void setRokZaZavrsetak(LocalDate rokZaZavrsetak) { this.rokZaZavrsetak = rokZaZavrsetak; }
 }
 
-class EukUgrozenoLiceDto {
+class EukUgrozenoLiceT1Dto {
     private Integer ugrozenoLiceId;
+    private String redniBroj;
     private String ime;
     private String prezime;
     private String jmbg;
-    private LocalDate datumRodjenja;
-    private String drzavaRodjenja;
-    private String mestoRodjenja;
-    private String opstinaRodjenja;
-    private Integer predmetId;
-    private String predmetNaziv;
-    private String predmetStatus;
+    private String pttBroj;
+    private String gradOpstina;
+    private String mesto;
+    private String ulicaIBroj;
+    private Integer brojClanovaDomacinstva;
+    private String osnovSticanjaStatusa;
+    private String edBrojBrojMernogUredjaja;
+    private java.math.BigDecimal potrosnjaKwh;
+    private java.math.BigDecimal zagrevanaPovrsinaM2;
+    private java.math.BigDecimal iznosUmanjenjaSaPdv;
+    private String brojRacuna;
+    private LocalDate datumIzdavanjaRacuna;
+    private LocalDate datumTrajanjaPrava;
 
     // Getters and Setters
     public Integer getUgrozenoLiceId() { return ugrozenoLiceId; }
     public void setUgrozenoLiceId(Integer ugrozenoLiceId) { this.ugrozenoLiceId = ugrozenoLiceId; }
+    
+    public String getRedniBroj() { return redniBroj; }
+    public void setRedniBroj(String redniBroj) { this.redniBroj = redniBroj; }
     
     public String getIme() { return ime; }
     public void setIme(String ime) { this.ime = ime; }
@@ -72,26 +82,44 @@ class EukUgrozenoLiceDto {
     public String getJmbg() { return jmbg; }
     public void setJmbg(String jmbg) { this.jmbg = jmbg; }
     
-    public LocalDate getDatumRodjenja() { return datumRodjenja; }
-    public void setDatumRodjenja(LocalDate datumRodjenja) { this.datumRodjenja = datumRodjenja; }
+    public String getPttBroj() { return pttBroj; }
+    public void setPttBroj(String pttBroj) { this.pttBroj = pttBroj; }
     
-    public String getDrzavaRodjenja() { return drzavaRodjenja; }
-    public void setDrzavaRodjenja(String drzavaRodjenja) { this.drzavaRodjenja = drzavaRodjenja; }
+    public String getGradOpstina() { return gradOpstina; }
+    public void setGradOpstina(String gradOpstina) { this.gradOpstina = gradOpstina; }
     
-    public String getMestoRodjenja() { return mestoRodjenja; }
-    public void setMestoRodjenja(String mestoRodjenja) { this.mestoRodjenja = mestoRodjenja; }
+    public String getMesto() { return mesto; }
+    public void setMesto(String mesto) { this.mesto = mesto; }
     
-    public String getOpstinaRodjenja() { return opstinaRodjenja; }
-    public void setOpstinaRodjenja(String opstinaRodjenja) { this.opstinaRodjenja = opstinaRodjenja; }
+    public String getUlicaIBroj() { return ulicaIBroj; }
+    public void setUlicaIBroj(String ulicaIBroj) { this.ulicaIBroj = ulicaIBroj; }
     
-    public Integer getPredmetId() { return predmetId; }
-    public void setPredmetId(Integer predmetId) { this.predmetId = predmetId; }
+    public Integer getBrojClanovaDomacinstva() { return brojClanovaDomacinstva; }
+    public void setBrojClanovaDomacinstva(Integer brojClanovaDomacinstva) { this.brojClanovaDomacinstva = brojClanovaDomacinstva; }
     
-    public String getPredmetNaziv() { return predmetNaziv; }
-    public void setPredmetNaziv(String predmetNaziv) { this.predmetNaziv = predmetNaziv; }
+    public String getOsnovSticanjaStatusa() { return osnovSticanjaStatusa; }
+    public void setOsnovSticanjaStatusa(String osnovSticanjaStatusa) { this.osnovSticanjaStatusa = osnovSticanjaStatusa; }
     
-    public String getPredmetStatus() { return predmetStatus; }
-    public void setPredmetStatus(String predmetStatus) { this.predmetStatus = predmetStatus; }
+    public String getEdBrojBrojMernogUredjaja() { return edBrojBrojMernogUredjaja; }
+    public void setEdBrojBrojMernogUredjaja(String edBrojBrojMernogUredjaja) { this.edBrojBrojMernogUredjaja = edBrojBrojMernogUredjaja; }
+    
+    public java.math.BigDecimal getPotrosnjaKwh() { return potrosnjaKwh; }
+    public void setPotrosnjaKwh(java.math.BigDecimal potrosnjaKwh) { this.potrosnjaKwh = potrosnjaKwh; }
+    
+    public java.math.BigDecimal getZagrevanaPovrsinaM2() { return zagrevanaPovrsinaM2; }
+    public void setZagrevanaPovrsinaM2(java.math.BigDecimal zagrevanaPovrsinaM2) { this.zagrevanaPovrsinaM2 = zagrevanaPovrsinaM2; }
+    
+    public java.math.BigDecimal getIznosUmanjenjaSaPdv() { return iznosUmanjenjaSaPdv; }
+    public void setIznosUmanjenjaSaPdv(java.math.BigDecimal iznosUmanjenjaSaPdv) { this.iznosUmanjenjaSaPdv = iznosUmanjenjaSaPdv; }
+    
+    public String getBrojRacuna() { return brojRacuna; }
+    public void setBrojRacuna(String brojRacuna) { this.brojRacuna = brojRacuna; }
+    
+    public LocalDate getDatumIzdavanjaRacuna() { return datumIzdavanjaRacuna; }
+    public void setDatumIzdavanjaRacuna(LocalDate datumIzdavanjaRacuna) { this.datumIzdavanjaRacuna = datumIzdavanjaRacuna; }
+    
+    public LocalDate getDatumTrajanjaPrava() { return datumTrajanjaPrava; }
+    public void setDatumTrajanjaPrava(LocalDate datumTrajanjaPrava) { this.datumTrajanjaPrava = datumTrajanjaPrava; }
 }
 
 public class TestSerialization {
@@ -117,23 +145,30 @@ public class TestSerialization {
             System.out.println("Predmet JSON:");
             System.out.println(predmetJson);
             
-            // Test ugroženo lice
-            System.out.println("\n=== TEST UGROŽENO LICE ===");
-            EukUgrozenoLiceDto ugrozenoLice = new EukUgrozenoLiceDto();
+            // Test ugroženo lice T1
+            System.out.println("\n=== TEST UGROŽENO LICE T1 ===");
+            EukUgrozenoLiceT1Dto ugrozenoLice = new EukUgrozenoLiceT1Dto();
             ugrozenoLice.setUgrozenoLiceId(456);
+            ugrozenoLice.setRedniBroj("001");
             ugrozenoLice.setIme("Marko");
             ugrozenoLice.setPrezime("Marković");
             ugrozenoLice.setJmbg("0101990123456");
-            ugrozenoLice.setDatumRodjenja(LocalDate.of(1990, 1, 1));
-            ugrozenoLice.setDrzavaRodjenja("Srbija");
-            ugrozenoLice.setMestoRodjenja("Beograd");
-            ugrozenoLice.setOpstinaRodjenja("Vračar");
-            ugrozenoLice.setPredmetId(123);
-            ugrozenoLice.setPredmetNaziv("Test Predmet");
-            ugrozenoLice.setPredmetStatus("aktivan");
+            ugrozenoLice.setPttBroj("11000");
+            ugrozenoLice.setGradOpstina("Beograd");
+            ugrozenoLice.setMesto("Vračar");
+            ugrozenoLice.setUlicaIBroj("Knez Mihailova 1");
+            ugrozenoLice.setBrojClanovaDomacinstva(3);
+            ugrozenoLice.setOsnovSticanjaStatusa("MP");
+            ugrozenoLice.setEdBrojBrojMernogUredjaja("ED123456");
+            ugrozenoLice.setPotrosnjaKwh(new java.math.BigDecimal("2500.50"));
+            ugrozenoLice.setZagrevanaPovrsinaM2(new java.math.BigDecimal("75.5"));
+            ugrozenoLice.setIznosUmanjenjaSaPdv(new java.math.BigDecimal("1250.25"));
+            ugrozenoLice.setBrojRacuna("RAC-2024-001");
+            ugrozenoLice.setDatumIzdavanjaRacuna(LocalDate.of(2024, 1, 15));
+            ugrozenoLice.setDatumTrajanjaPrava(LocalDate.of(2025, 1, 15));
 
             String ugrozenoLiceJson = objectMapper.writeValueAsString(ugrozenoLice);
-            System.out.println("Ugroženo Lice JSON:");
+            System.out.println("Ugroženo Lice T1 JSON:");
             System.out.println(ugrozenoLiceJson);
             
         } catch (Exception e) {

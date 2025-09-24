@@ -1,12 +1,10 @@
 package com.sirus.backend.controller;
 
 import com.sirus.backend.dto.EukPredmetDto;
-import com.sirus.backend.dto.EukUgrozenoLiceDto;
 import com.sirus.backend.dto.PaginatedResponse;
 import com.sirus.backend.entity.EukPredmet;
 import com.sirus.backend.exception.EukException;
 import com.sirus.backend.service.EukPredmetService;
-import com.sirus.backend.service.EukUgrozenoLiceService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/euk/predmeti")
@@ -28,8 +25,6 @@ public class EukPredmetController {
     @Autowired
     private EukPredmetService predmetService;
     
-    @Autowired
-    private EukUgrozenoLiceService ugrozenoLiceService;
     
     @GetMapping
     public ResponseEntity<PaginatedResponse<EukPredmetDto>> getAllPredmeti(
@@ -130,15 +125,4 @@ public class EukPredmetController {
         }
     }
     
-    @GetMapping("/{id}/ugrozena-lica")
-    public ResponseEntity<List<EukUgrozenoLiceDto>> getUgrozenaLicaByPredmetId(@PathVariable Integer id) {
-        logger.info("GET /api/euk/predmeti/{}/ugrozena-lica - Fetching ugrožena lica for predmet", id);
-        try {
-            List<EukUgrozenoLiceDto> ugrozenaLica = ugrozenoLiceService.findByPredmetId(id);
-            return ResponseEntity.ok(ugrozenaLica);
-        } catch (Exception e) {
-            logger.error("Error fetching ugrožena lica for predmet ID {}: {}", id, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 }
