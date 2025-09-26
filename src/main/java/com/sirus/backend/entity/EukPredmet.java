@@ -108,6 +108,9 @@ public class EukPredmet {
     @JoinColumn(name = "kategorija_id", nullable = false)
     private EukKategorija kategorija;
     
+    @Column(name = "kategorija_skracenica", length = 10)
+    private String kategorijaSkracenica;
+    
     
     // Getters and Setters
     public Integer getPredmetId() {
@@ -172,6 +175,14 @@ public class EukPredmet {
     
     public void setKategorija(EukKategorija kategorija) {
         this.kategorija = kategorija;
+    }
+    
+    public String getKategorijaSkracenica() {
+        return kategorijaSkracenica;
+    }
+    
+    public void setKategorijaSkracenica(String kategorijaSkracenica) {
+        this.kategorijaSkracenica = kategorijaSkracenica;
     }
     
 }

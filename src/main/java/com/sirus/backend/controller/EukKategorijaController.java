@@ -35,6 +35,20 @@ public class EukKategorijaController {
         }
     }
     
+    @GetMapping("/search")
+    public ResponseEntity<List<EukKategorijaDto>> searchKategorije(
+            @RequestParam(required = false) String naziv,
+            @RequestParam(required = false) String skracenica) {
+        logger.info("GET /api/euk/kategorije/search - Searching kategorije with filters - naziv: {}, skracenica: {}", naziv, skracenica);
+        try {
+            List<EukKategorijaDto> kategorije = kategorijaService.search(naziv, skracenica);
+            return ResponseEntity.ok(kategorije);
+        } catch (Exception e) {
+            logger.error("Error searching kategorije: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<EukKategorijaDto> getKategorijaById(@PathVariable Integer id) {
         logger.info("GET /api/euk/kategorije/{} - Fetching kategorija by ID", id);

@@ -31,6 +31,7 @@ public class EukPredmetDto {
     private Integer kategorijaId;
     
     private String kategorijaNaziv;
+    private String kategorijaSkracenica;
     private Integer brojUgrozenihLica;
     
     // Getters and Setters
@@ -104,6 +105,14 @@ public class EukPredmetDto {
     
     public void setKategorijaNaziv(String kategorijaNaziv) {
         this.kategorijaNaziv = kategorijaNaziv;
+    }
+    
+    public String getKategorijaSkracenica() {
+        return kategorijaSkracenica;
+    }
+    
+    public void setKategorijaSkracenica(String kategorijaSkracenica) {
+        this.kategorijaSkracenica = kategorijaSkracenica;
     }
     
     public Integer getBrojUgrozenihLica() {

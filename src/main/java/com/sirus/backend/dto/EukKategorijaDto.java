@@ -11,6 +11,10 @@ public class EukKategorijaDto {
     @Size(max = 255, message = "Naziv kategorije ne može biti duži od 255 karaktera")
     private String naziv;
     
+    @NotBlank(message = "Skraćenica kategorije je obavezna")
+    @Size(max = 10, message = "Skraćenica kategorije ne može biti duža od 10 karaktera")
+    private String skracenica;
+    
     // Getters and Setters
     public Integer getKategorijaId() {
         return kategorijaId;
@@ -26,5 +30,13 @@ public class EukKategorijaDto {
     
     public void setNaziv(String naziv) {
         this.naziv = naziv;
+    }
+    
+    public String getSkracenica() {
+        return skracenica;
+    }
+    
+    public void setSkracenica(String skracenica) {
+        this.skracenica = skracenica;
     }
 }

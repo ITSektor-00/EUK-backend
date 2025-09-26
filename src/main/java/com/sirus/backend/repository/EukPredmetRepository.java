@@ -16,7 +16,7 @@ public interface EukPredmetRepository extends JpaRepository<EukPredmet, Integer>
     @Query("SELECT p, k.naziv as kategorijaNaziv, 0 as brojUgrozenihLica " +
            "FROM EukPredmet p " +
            "LEFT JOIN FETCH p.kategorija k " +
-           "GROUP BY p.predmetId, k.naziv")
+           "GROUP BY p.predmetId, p.datumKreiranja, p.nazivPredmeta, p.status, p.odgovornaOsoba, p.prioritet, p.rokZaZavrsetak, p.kategorija.kategorijaId, k.naziv")
     Page<Object[]> findAllWithKategorijaAndUgrozenaLicaCount(Pageable pageable);
     
     @Query("SELECT p, k.naziv as kategorijaNaziv, 0 as brojUgrozenihLica " +
@@ -26,7 +26,7 @@ public interface EukPredmetRepository extends JpaRepository<EukPredmet, Integer>
            "AND (:prioritet IS NULL OR p.prioritet = :prioritet) " +
            "AND (:kategorijaId IS NULL OR p.kategorija.kategorijaId = :kategorijaId) " +
            "AND (:odgovornaOsoba IS NULL OR LOWER(p.odgovornaOsoba) LIKE LOWER(CONCAT('%', :odgovornaOsoba, '%'))) " +
-           "GROUP BY p.predmetId, k.naziv")
+           "GROUP BY p.predmetId, p.datumKreiranja, p.nazivPredmeta, p.status, p.odgovornaOsoba, p.prioritet, p.rokZaZavrsetak, p.kategorija.kategorijaId, k.naziv")
     Page<Object[]> findAllWithFilters(
             @Param("status") EukPredmet.Status status,
             @Param("prioritet") EukPredmet.Prioritet prioritet,

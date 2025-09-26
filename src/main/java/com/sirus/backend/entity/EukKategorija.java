@@ -15,6 +15,9 @@ public class EukKategorija {
     @Column(name = "naziv", nullable = false, length = 255)
     private String naziv;
     
+    @Column(name = "skracenica", nullable = false, length = 10)
+    private String skracenica;
+    
     @OneToMany(mappedBy = "kategorija", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EukPredmet> predmeti;
     
@@ -33,6 +36,14 @@ public class EukKategorija {
     
     public void setNaziv(String naziv) {
         this.naziv = naziv;
+    }
+    
+    public String getSkracenica() {
+        return skracenica;
+    }
+    
+    public void setSkracenica(String skracenica) {
+        this.skracenica = skracenica;
     }
     
     public List<EukPredmet> getPredmeti() {

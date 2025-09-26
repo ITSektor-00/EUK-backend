@@ -76,6 +76,7 @@ public class EukPredmetService {
         predmet.setPrioritet(dto.getPrioritet());
         predmet.setRokZaZavrsetak(dto.getRokZaZavrsetak());
         predmet.setKategorija(kategorija);
+        predmet.setKategorijaSkracenica(kategorija.getSkracenica());
         
         EukPredmet savedPredmet = predmetRepository.save(predmet);
         logger.info("Created EUK predmet with ID: {}", savedPredmet.getPredmetId());
@@ -101,6 +102,7 @@ public class EukPredmetService {
         predmet.setPrioritet(dto.getPrioritet());
         predmet.setRokZaZavrsetak(dto.getRokZaZavrsetak());
         predmet.setKategorija(kategorija);
+        predmet.setKategorijaSkracenica(kategorija.getSkracenica());
         
         EukPredmet savedPredmet = predmetRepository.save(predmet);
         logger.info("Updated EUK predmet with ID: {}", id);
@@ -140,6 +142,7 @@ public class EukPredmetService {
         dto.setRokZaZavrsetak(predmet.getRokZaZavrsetak());
         dto.setKategorijaId(predmet.getKategorija() != null ? predmet.getKategorija().getKategorijaId() : null);
         dto.setKategorijaNaziv(predmet.getKategorija() != null ? predmet.getKategorija().getNaziv() : null);
+        dto.setKategorijaSkracenica(predmet.getKategorijaSkracenica());
         // Note: brojUgrozenihLica is now calculated from separate ugrozeno_lice_t1 table
         // This would need to be implemented differently if needed
         dto.setBrojUgrozenihLica(0);
@@ -149,7 +152,9 @@ public class EukPredmetService {
     private EukPredmetDto convertToDtoFromObjectArray(Object[] result) {
         EukPredmet predmet = (EukPredmet) result[0];
         String kategorijaNaziv = (String) result[1];
-        Long brojUgrozenihLica = (Long) result[2];
+        // Handle both Integer and Long types for brojUgrozenihLica
+        Number brojUgrozenihLicaNumber = (Number) result[2];
+        int brojUgrozenihLica = brojUgrozenihLicaNumber != null ? brojUgrozenihLicaNumber.intValue() : 0;
         
         EukPredmetDto dto = new EukPredmetDto();
         dto.setPredmetId(predmet.getPredmetId());
@@ -161,7 +166,8 @@ public class EukPredmetService {
         dto.setRokZaZavrsetak(predmet.getRokZaZavrsetak());
         dto.setKategorijaId(predmet.getKategorija() != null ? predmet.getKategorija().getKategorijaId() : null);
         dto.setKategorijaNaziv(kategorijaNaziv);
-        dto.setBrojUgrozenihLica(brojUgrozenihLica != null ? brojUgrozenihLica.intValue() : 0);
+        dto.setKategorijaSkracenica(predmet.getKategorijaSkracenica());
+        dto.setBrojUgrozenihLica(brojUgrozenihLica);
         return dto;
     }
 }

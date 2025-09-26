@@ -146,21 +146,27 @@ public class AuthController {
             }
             
             String username = jwtService.getUsernameFromToken(token);
+            String role = jwtService.getRoleFromToken(token);
+            Long userId = jwtService.getUserIdFromToken(token);
+            
             logger.info("Username from token: {}", username);
+            logger.info("Role from token: {}", role);
+            logger.info("User ID from token: {}", userId);
             
             User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
             
-            logger.info("User found: {}", user.getUsername());
+            logger.info("User found: {} with role: {}", user.getUsername(), user.getRole());
+            logger.info("Using role from token: {} instead of database role: {}", role, user.getRole());
             
-            // Vrati user data
+            // Vrati user data sa role iz JWT tokena (ne iz baze!)
             return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
+                "id", userId, // Koristi ID iz tokena
                 "username", user.getUsername(),
                 "email", user.getEmail(),
                 "firstName", user.getFirstName(),
                 "lastName", user.getLastName(),
-                "role", user.getRole(),
+                "role", role, // ✅ KORISTI ROLE IZ TOKENA!
                 "isActive", user.isActive()
             ));
             

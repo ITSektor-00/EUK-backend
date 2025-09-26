@@ -228,6 +228,27 @@ public class EukUgrozenoLiceT1Service {
         return ugrozenoLiceT1Repository.count();
     }
     
+    // Pretraga po kategoriji (osnov sticanja statusa)
+    public Page<EukUgrozenoLiceT1Dto> findByKategorijaSkracenica(String kategorijaSkracenica, int page, int size) {
+        logger.info("Searching EUK ugrožena lica T1 by kategorija skracenica: {}", kategorijaSkracenica);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EukUgrozenoLiceT1> results = ugrozenoLiceT1Repository.findByKategorijaSkracenica(kategorijaSkracenica, pageable);
+        return results.map(this::convertToDto);
+    }
+    
+    // Statistike po kategorijama
+    public Map<String, Long> getStatisticsByKategorija() {
+        logger.info("Fetching EUK ugrožena lica T1 statistics by kategorija");
+        List<Object[]> results = ugrozenoLiceT1Repository.countByKategorijaSkracenica();
+        Map<String, Long> stats = new HashMap<>();
+        for (Object[] result : results) {
+            String kategorijaSkracenica = (String) result[0];
+            Long count = (Long) result[1];
+            stats.put(kategorijaSkracenica, count);
+        }
+        return stats;
+    }
+    
     // Progress tracking za batch import
     private static final Map<String, Map<String, Object>> batchProgress = new ConcurrentHashMap<>();
     

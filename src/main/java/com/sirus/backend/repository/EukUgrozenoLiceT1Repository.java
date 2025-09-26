@@ -104,6 +104,14 @@ public interface EukUgrozenoLiceT1Repository extends JpaRepository<EukUgrozenoLi
     @Query("SELECT COUNT(u) FROM EukUgrozenoLiceT1 u WHERE u.osnovSticanjaStatusa = :osnovStatusa")
     Long countByOsnovSticanjaStatusa(@Param("osnovStatusa") String osnovStatusa);
     
+    // Pretraga po kategoriji (osnov sticanja statusa povezan sa kategorija.skracenica)
+    @Query("SELECT u FROM EukUgrozenoLiceT1 u WHERE u.osnovSticanjaStatusa = :kategorijaSkracenica")
+    Page<EukUgrozenoLiceT1> findByKategorijaSkracenica(@Param("kategorijaSkracenica") String kategorijaSkracenica, Pageable pageable);
+    
+    // Statistike po kategorijama
+    @Query("SELECT u.osnovSticanjaStatusa, COUNT(u) FROM EukUgrozenoLiceT1 u WHERE u.osnovSticanjaStatusa IS NOT NULL GROUP BY u.osnovSticanjaStatusa")
+    List<Object[]> countByKategorijaSkracenica();
+    
     @Query("SELECT SUM(u.iznosUmanjenjaSaPdv) FROM EukUgrozenoLiceT1 u WHERE u.iznosUmanjenjaSaPdv IS NOT NULL")
     BigDecimal sumIznosUmanjenjaSaPdv();
     

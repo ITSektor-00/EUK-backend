@@ -59,10 +59,10 @@ public class EukUgrozenoLiceT1 {
     @Column(name = "broj_clanova_domacinstva")
     private Integer brojClanovaDomacinstva;
     
-    // Energetski status
-    @Size(max = 50, message = "Osnov sticanja statusa ne može biti duži od 50 karaktera")
-    @Column(name = "osnov_sticanja_statusa", length = 50)
-    private String osnovSticanjaStatusa; // MP, NSP, DD, UDTNP
+    // Energetski status - povezano sa kategorija.skracenica
+    @Size(max = 10, message = "Osnov sticanja statusa ne može biti duži od 10 karaktera")
+    @Column(name = "osnov_sticanja_statusa", length = 10)
+    private String osnovSticanjaStatusa; // Povezano sa kategorija.skracenica
     
     @Size(max = 100, message = "ED broj/broj mernog uređaja ne može biti duži od 100 karaktera")
     @Column(name = "ed_broj_broj_mernog_uredjaja", length = 100)

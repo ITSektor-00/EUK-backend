@@ -29,6 +29,14 @@ public class EukKategorijaService {
                 .collect(Collectors.toList());
     }
     
+    public List<EukKategorijaDto> search(String naziv, String skracenica) {
+        logger.info("Searching EUK kategorije with filters - naziv: {}, skracenica: {}", naziv, skracenica);
+        List<EukKategorija> kategorije = kategorijaRepository.search(naziv, skracenica);
+        return kategorije.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+    
     public EukKategorijaDto findById(Integer id) {
         logger.info("Fetching EUK kategorija with ID: {}", id);
         EukKategorija kategorija = kategorijaRepository.findById(id)
@@ -44,8 +52,13 @@ public class EukKategorijaService {
             throw new EukException("Kategorija sa nazivom '" + dto.getNaziv() + "' već postoji");
         }
         
+        if (kategorijaRepository.existsBySkracenica(dto.getSkracenica())) {
+            throw new EukException("Kategorija sa skraćenicom '" + dto.getSkracenica() + "' već postoji");
+        }
+        
         EukKategorija kategorija = new EukKategorija();
         kategorija.setNaziv(dto.getNaziv());
+        kategorija.setSkracenica(dto.getSkracenica());
         
         EukKategorija savedKategorija = kategorijaRepository.save(kategorija);
         logger.info("Created EUK kategorija with ID: {}", savedKategorija.getKategorijaId());
@@ -66,7 +79,14 @@ public class EukKategorijaService {
             throw new EukException("Kategorija sa nazivom '" + dto.getNaziv() + "' već postoji");
         }
         
+        // Check if skracenica already exists for different category
+        if (!kategorija.getSkracenica().equals(dto.getSkracenica()) && 
+            kategorijaRepository.existsBySkracenica(dto.getSkracenica())) {
+            throw new EukException("Kategorija sa skraćenicom '" + dto.getSkracenica() + "' već postoji");
+        }
+        
         kategorija.setNaziv(dto.getNaziv());
+        kategorija.setSkracenica(dto.getSkracenica());
         EukKategorija savedKategorija = kategorijaRepository.save(kategorija);
         
         logger.info("Updated EUK kategorija with ID: {}", id);
@@ -93,6 +113,7 @@ public class EukKategorijaService {
         EukKategorijaDto dto = new EukKategorijaDto();
         dto.setKategorijaId(kategorija.getKategorijaId());
         dto.setNaziv(kategorija.getNaziv());
+        dto.setSkracenica(kategorija.getSkracenica());
         return dto;
     }
 }

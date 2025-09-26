@@ -361,6 +361,38 @@ public class EukUgrozenoLiceT1Controller {
         }
     }
     
+    // GET /api/euk/ugrozena-lica-t1/search/kategorija/{kategorijaSkracenica} - Pretraga po kategoriji
+    @GetMapping("/search/kategorija/{kategorijaSkracenica}")
+    public ResponseEntity<?> searchByKategorija(@PathVariable String kategorijaSkracenica,
+                                               @RequestParam(defaultValue = "0") int page,
+                                               @RequestParam(defaultValue = "10") int size) {
+        logger.info("GET /api/euk/ugrozena-lica-t1/search/kategorija/{} - Searching by kategorija", kategorijaSkracenica);
+        try {
+            Page<EukUgrozenoLiceT1Dto> results = ugrozenoLiceT1Service.findByKategorijaSkracenica(kategorijaSkracenica, page, size);
+            return ResponseEntity.ok(PaginatedResponse.from(results));
+        } catch (Exception e) {
+            logger.error("Error searching by kategorija: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "INTERNAL_ERROR",
+                "message", "Greška pri pretrazi po kategoriji: " + e.getMessage(),
+                "path", "/api/euk/ugrozena-lica-t1/search/kategorija/" + kategorijaSkracenica
+            ));
+        }
+    }
+    
+    // GET /api/euk/ugrozena-lica-t1/statistics/kategorija - Statistike po kategorijama
+    @GetMapping("/statistics/kategorija")
+    public ResponseEntity<Map<String, Long>> getStatisticsByKategorija() {
+        logger.info("GET /api/euk/ugrozena-lica-t1/statistics/kategorija - Fetching statistics by kategorija");
+        try {
+            Map<String, Long> statistics = ugrozenoLiceT1Service.getStatisticsByKategorija();
+            return ResponseEntity.ok(statistics);
+        } catch (Exception e) {
+            logger.error("Error fetching statistics by kategorija: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     // GET /api/euk/ugrozena-lica-t1/test - Test endpoint
     @GetMapping("/test")
     public ResponseEntity<Map<String, Object>> test() {
