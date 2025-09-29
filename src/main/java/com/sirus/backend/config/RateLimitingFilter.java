@@ -14,6 +14,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @ConditionalOnProperty(name = "euk.rate-limit.enabled", havingValue = "true", matchIfMissing = false)
@@ -29,6 +31,9 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     @Value("${euk.rate-limit.window-minutes:1}")
     private int windowMinutes;
     
+    @Value("${euk.rate-limit.exclude-patterns:}")
+    private String excludePatterns;
+    
     private long getResetInterval() {
         return windowMinutes * 60000L; // Convert minutes to milliseconds
     }
@@ -40,20 +45,46 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         
         String clientIp = getClientIpAddress(request);
         String origin = request.getHeader("Origin");
-        String key = clientIp + ":" + request.getRequestURI();
+        String requestURI = request.getRequestURI();
+        String key = clientIp + ":" + requestURI;
         
         // Izuzmi WebSocket endpoint-e od rate limiting-a
-        if (request.getRequestURI().startsWith("/ws/") || 
-            request.getRequestURI().contains("/ws/info") ||
-            request.getRequestURI().contains("/ws/websocket")) {
+        if (requestURI.startsWith("/ws/") || 
+            requestURI.contains("/ws/info") ||
+            requestURI.contains("/ws/websocket")) {
             filterChain.doFilter(request, response);
             return;
         }
         
         // Izuzmi admin endpoint-e od rate limiting-a
-        if (request.getRequestURI().startsWith("/api/admin/")) {
+        if (requestURI.startsWith("/api/admin/")) {
             filterChain.doFilter(request, response);
             return;
+        }
+        
+        // Izuzmi auth i global license endpoint-e od rate limiting-a
+        if (requestURI.startsWith("/api/auth/") || 
+            requestURI.startsWith("/api/global-license/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        // Proveri exclude patterns iz konfiguracije
+        if (excludePatterns != null && !excludePatterns.isEmpty()) {
+            List<String> patterns = Arrays.asList(excludePatterns.split(","));
+            for (String pattern : patterns) {
+                String trimmedPattern = pattern.trim();
+                // Konvertuj glob pattern u regex
+                String regexPattern = trimmedPattern
+                    .replace("**", ".*")
+                    .replace("*", "[^/]*")
+                    .replace(".", "\\.");
+                
+                if (requestURI.matches(regexPattern)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+            }
         }
         
         // Posebna pravila za EUK domene

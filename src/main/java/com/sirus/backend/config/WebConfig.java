@@ -1,6 +1,6 @@
 package com.sirus.backend.config;
 
-import com.sirus.backend.interceptor.LicenseCheckInterceptor;
+import com.sirus.backend.interceptor.GlobalLicenseCheckInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -10,19 +10,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
     
     @Autowired
-    private LicenseCheckInterceptor licenseCheckInterceptor;
+    private GlobalLicenseCheckInterceptor globalLicenseCheckInterceptor;
     
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(licenseCheckInterceptor)
+        registry.addInterceptor(globalLicenseCheckInterceptor)
                 .addPathPatterns("/api/**") // Primjenjuje se na sve API endpoint-e
                 .excludePathPatterns(
-                    "/api/licenses/status",
-                    "/api/licenses/check", 
-                    "/api/licenses/create",
+                    "/api/global-license/**",  // ✅ Exclude sve global license endpoint-e
                     "/api/auth/**",
                     "/api/public/**",
-                    "/error"
+                    "/error",
+                    "/actuator/**"
                 );
     }
 }
