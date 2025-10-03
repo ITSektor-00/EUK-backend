@@ -3,6 +3,7 @@ package com.sirus.backend.interceptor;
 import com.sirus.backend.service.GlobalLicenseService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -24,6 +25,8 @@ public class GlobalLicenseCheckInterceptor implements HandlerInterceptor {
         "/api/auth/login",
         "/api/auth/register",
         "/api/global-license/create", // Admin endpoint za kreiranje licence
+        "/api/generate-envelope-pdf", // PDF generisanje
+        "/api/test-envelope-pdf", // Test PDF endpoint
         "/error",
         "/actuator",
         "/swagger-ui",
@@ -31,7 +34,7 @@ public class GlobalLicenseCheckInterceptor implements HandlerInterceptor {
     );
     
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
         String requestPath = request.getRequestURI();
         String method = request.getMethod();
 

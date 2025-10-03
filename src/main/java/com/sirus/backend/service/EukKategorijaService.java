@@ -109,6 +109,11 @@ public class EukKategorijaService {
         logger.info("Deleted EUK kategorija with ID: {}", id);
     }
     
+    public long countAll() {
+        logger.info("Counting total EUK kategorije");
+        return kategorijaRepository.count();
+    }
+    
     private EukKategorijaDto convertToDto(EukKategorija kategorija) {
         EukKategorijaDto dto = new EukKategorijaDto();
         dto.setKategorijaId(kategorija.getKategorijaId());

@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -31,7 +30,7 @@ public class EukUgrozenoLiceT1Controller {
     @GetMapping
     public ResponseEntity<?> getAllUgrozenaLicaT1(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "50000") int size) {
         
         logger.info("GET /api/euk/ugrozena-lica-t1 - Fetching ugrožena lica T1 with pagination - page: {}, size: {}", page, size);
         
@@ -114,94 +113,6 @@ public class EukUgrozenoLiceT1Controller {
         }
     }
     
-    // POST /api/euk/ugrozena-lica-t1/batch - Masovni import podataka
-    @PostMapping("/batch")
-    public ResponseEntity<?> createBatch(@Valid @RequestBody List<EukUgrozenoLiceT1Dto> ugrozenaLicaDtos) {
-        logger.info("POST /api/euk/ugrozena-lica-t1/batch - Creating batch of {} ugrožena lica T1", ugrozenaLicaDtos.size());
-        
-        try {
-            // Validacija veličine batch-a
-            if (ugrozenaLicaDtos.size() > 1000) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "error", "BATCH_TOO_LARGE",
-                    "message", "Batch size cannot exceed 1000 records",
-                    "path", "/api/euk/ugrozena-lica-t1/batch"
-                ));
-            }
-            
-            List<EukUgrozenoLiceT1Dto> createdLica = ugrozenoLiceT1Service.createBatch(ugrozenaLicaDtos);
-            
-            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "message", "Batch import completed successfully",
-                "totalProcessed", createdLica.size(),
-                "totalSubmitted", ugrozenaLicaDtos.size(),
-                "skippedCount", ugrozenaLicaDtos.size() - createdLica.size(),
-                "data", createdLica
-            ));
-        } catch (Exception e) {
-            logger.error("Error creating batch: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "error", "INTERNAL_ERROR",
-                "message", "Greška pri batch importu: " + e.getMessage(),
-                "path", "/api/euk/ugrozena-lica-t1/batch"
-            ));
-        }
-    }
-    
-    // POST /api/euk/ugrozena-lica-t1/batch-progress - Batch import sa progress tracking-om
-    @PostMapping("/batch-progress")
-    public ResponseEntity<?> createBatchWithProgress(@Valid @RequestBody List<EukUgrozenoLiceT1Dto> ugrozenaLicaDtos) {
-        logger.info("POST /api/euk/ugrozena-lica-t1/batch-progress - Creating batch of {} ugrožena lica T1 with progress tracking", ugrozenaLicaDtos.size());
-        
-        try {
-            // Validacija veličine batch-a
-            if (ugrozenaLicaDtos.size() > 1000) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "error", "BATCH_TOO_LARGE",
-                    "message", "Batch size cannot exceed 1000 records",
-                    "path", "/api/euk/ugrozena-lica-t1/batch-progress"
-                ));
-            }
-            
-            // Kreiranje batch ID-a za tracking
-            String batchId = "batch_" + System.currentTimeMillis();
-            
-            // Asinhrono procesiranje sa progress tracking-om
-            ugrozenoLiceT1Service.createBatchWithProgress(ugrozenaLicaDtos, batchId);
-            
-            return ResponseEntity.accepted().body(Map.of(
-                "message", "Batch import started",
-                "batchId", batchId,
-                "totalRecords", ugrozenaLicaDtos.size(),
-                "status", "PROCESSING"
-            ));
-        } catch (Exception e) {
-            logger.error("Error starting batch with progress: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "error", "INTERNAL_ERROR",
-                "message", "Greška pri pokretanju batch importa: " + e.getMessage(),
-                "path", "/api/euk/ugrozena-lica-t1/batch-progress"
-            ));
-        }
-    }
-    
-    // GET /api/euk/ugrozena-lica-t1/batch-progress/{batchId} - Proveri status batch-a
-    @GetMapping("/batch-progress/{batchId}")
-    public ResponseEntity<?> getBatchProgress(@PathVariable String batchId) {
-        logger.info("GET /api/euk/ugrozena-lica-t1/batch-progress/{} - Checking batch progress", batchId);
-        
-        try {
-            Map<String, Object> progress = ugrozenoLiceT1Service.getBatchProgress(batchId);
-            return ResponseEntity.ok(progress);
-        } catch (Exception e) {
-            logger.error("Error getting batch progress: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "error", "INTERNAL_ERROR",
-                "message", "Greška pri dohvatanju progress-a: " + e.getMessage(),
-                "path", "/api/euk/ugrozena-lica-t1/batch-progress/" + batchId
-            ));
-        }
-    }
     
     // PUT /api/euk/ugrozena-lica-t1/{id} - Ažuriranje ugroženog lica
     @PutMapping("/{id}")
@@ -289,7 +200,7 @@ public class EukUgrozenoLiceT1Controller {
             @RequestParam(required = false) String ime,
             @RequestParam(required = false) String prezime,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "50000") int size) {
         
         logger.info("GET /api/euk/ugrozena-lica-t1/search/name - Searching by name: {} {}", ime, prezime);
         
@@ -318,7 +229,7 @@ public class EukUgrozenoLiceT1Controller {
     @PostMapping("/search/filters")
     public ResponseEntity<?> searchWithFilters(@RequestBody Map<String, Object> filters,
                                               @RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "10") int size) {
+                                              @RequestParam(defaultValue = "50000") int size) {
         
         logger.info("POST /api/euk/ugrozena-lica-t1/search/filters - Searching with filters: {}", filters);
         
@@ -365,7 +276,7 @@ public class EukUgrozenoLiceT1Controller {
     @GetMapping("/search/kategorija/{kategorijaSkracenica}")
     public ResponseEntity<?> searchByKategorija(@PathVariable String kategorijaSkracenica,
                                                @RequestParam(defaultValue = "0") int page,
-                                               @RequestParam(defaultValue = "10") int size) {
+                                               @RequestParam(defaultValue = "50000") int size) {
         logger.info("GET /api/euk/ugrozena-lica-t1/search/kategorija/{} - Searching by kategorija", kategorijaSkracenica);
         try {
             Page<EukUgrozenoLiceT1Dto> results = ugrozenoLiceT1Service.findByKategorijaSkracenica(kategorijaSkracenica, page, size);
@@ -417,7 +328,6 @@ public class EukUgrozenoLiceT1Controller {
             "GET /api/euk/ugrozena-lica-t1",
             "GET /api/euk/ugrozena-lica-t1/{id}",
             "POST /api/euk/ugrozena-lica-t1",
-            "POST /api/euk/ugrozena-lica-t1/batch",
             "PUT /api/euk/ugrozena-lica-t1/{id}",
             "DELETE /api/euk/ugrozena-lica-t1/{id}",
             "GET /api/euk/ugrozena-lica-t1/search/jmbg/{jmbg}",

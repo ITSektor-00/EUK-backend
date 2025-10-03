@@ -2,6 +2,7 @@ package com.sirus.backend.repository;
 
 import com.sirus.backend.entity.GlobalLicense;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -32,10 +33,12 @@ public interface GlobalLicenseRepository extends JpaRepository<GlobalLicense, Lo
     Optional<GlobalLicense> findExpiredGlobalLicense(@Param("now") LocalDateTime now);
     
     // Deaktiviraj istekli globalnu licencu
+    @Modifying
     @Query("UPDATE GlobalLicense gl SET gl.isActive = false WHERE gl.isActive = true AND gl.endDate < :now")
     int deactivateExpiredGlobalLicense(@Param("now") LocalDateTime now);
     
     // Označi da je obaveštenje poslato
+    @Modifying
     @Query("UPDATE GlobalLicense gl SET gl.notificationSent = true WHERE gl.id = :licenseId")
     int markNotificationSent(@Param("licenseId") Long licenseId);
     

@@ -1,7 +1,6 @@
 package com.sirus.backend.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,70 +15,50 @@ public class EukUgrozenoLiceT1 {
     private Integer ugrozenoLiceId;
     
     // Osnovne informacije o licu
-    @NotBlank(message = "Redni broj je obavezan")
-    @Size(max = 20, message = "Redni broj ne može biti duži od 20 karaktera")
-    @Column(name = "redni_broj", nullable = false, length = 20)
+    @Column(name = "redni_broj", length = 20)
     private String redniBroj;
     
-    @NotBlank(message = "Ime je obavezno")
-    @Size(max = 100, message = "Ime ne može biti duže od 100 karaktera")
-    @Column(name = "ime", nullable = false, length = 100)
+    @Column(name = "ime", length = 100)
     private String ime;
     
-    @NotBlank(message = "Prezime je obavezno")
-    @Size(max = 100, message = "Prezime ne može biti duže od 100 karaktera")
-    @Column(name = "prezime", nullable = false, length = 100)
+    @Column(name = "prezime", length = 100)
     private String prezime;
     
-    @NotBlank(message = "JMBG je obavezan")
-    @Pattern(regexp = "^\\d{13}$", message = "JMBG mora sadržati tačno 13 cifara")
-    @Column(name = "jmbg", nullable = false, unique = true, columnDefinition = "CHAR(13)")
+    @Column(name = "jmbg", columnDefinition = "CHAR(13)")
     private String jmbg;
     
     // Adresne informacije
-    @Size(max = 10, message = "PTT broj ne može biti duži od 10 karaktera")
     @Column(name = "ptt_broj", length = 10)
     private String pttBroj;
     
-    @Size(max = 100, message = "Grad/Opština ne može biti duži od 100 karaktera")
     @Column(name = "grad_opstina", length = 100)
     private String gradOpstina;
     
-    @Size(max = 100, message = "Mesto ne može biti duže od 100 karaktera")
     @Column(name = "mesto", length = 100)
     private String mesto;
     
-    @Size(max = 200, message = "Ulica i broj ne može biti duži od 200 karaktera")
     @Column(name = "ulica_i_broj", length = 200)
     private String ulicaIBroj;
     
     // Informacije o domaćinstvu
-    @Min(value = 1, message = "Broj članova domaćinstva mora biti veći od 0")
-    @Max(value = 20, message = "Broj članova domaćinstva ne može biti veći od 20")
     @Column(name = "broj_clanova_domacinstva")
     private Integer brojClanovaDomacinstva;
     
     // Energetski status - povezano sa kategorija.skracenica
-    @Size(max = 10, message = "Osnov sticanja statusa ne može biti duži od 10 karaktera")
     @Column(name = "osnov_sticanja_statusa", length = 10)
     private String osnovSticanjaStatusa; // Povezano sa kategorija.skracenica
     
-    @Size(max = 100, message = "ED broj/broj mernog uređaja ne može biti duži od 100 karaktera")
     @Column(name = "ed_broj_broj_mernog_uredjaja", length = 100)
     private String edBrojBrojMernogUredjaja;
     
     // Energetski podaci - kombinovana kolona
-    @Size(max = 200, message = "Kombinovana kolona potrošnje i površine ne može biti duža od 200 karaktera")
     @Column(name = "potrosnja_i_povrsina_combined", length = 200)
     private String potrosnjaIPovrsinaCombined;
     
     // Finansijski podaci
-    @DecimalMin(value = "0.0", message = "Iznos umanjenja ne može biti negativan")
-    @Digits(integer = 10, fraction = 2, message = "Iznos umanjenja mora imati najviše 10 cifara pre decimalne tačke i 2 posle")
     @Column(name = "iznos_umanjenja_sa_pdv", precision = 12, scale = 2)
     private BigDecimal iznosUmanjenjaSaPdv;
     
-    @Size(max = 50, message = "Broj računa ne može biti duži od 50 karaktera")
     @Column(name = "broj_racuna", length = 50)
     private String brojRacuna;
     

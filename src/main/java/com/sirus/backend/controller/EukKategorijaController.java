@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/euk/kategorije")
@@ -105,6 +106,18 @@ public class EukKategorijaController {
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logger.error("Error deleting kategorija with ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> getCount() {
+        logger.info("GET /api/euk/kategorije/count - Fetching count");
+        try {
+            long count = kategorijaService.countAll();
+            return ResponseEntity.ok(Map.of("totalCount", count));
+        } catch (Exception e) {
+            logger.error("Error fetching kategorije count: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

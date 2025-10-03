@@ -13,6 +13,7 @@ import java.util.Optional;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.mockito.MockitoAnnotations;
 
 @WebMvcTest(UserPermissionsController.class)
 public class UserPermissionsControllerTest {
@@ -20,8 +21,12 @@ public class UserPermissionsControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @org.springframework.boot.test.mock.mockito.MockBean
+    @org.mockito.Mock
     private UserRepository userRepository;
+    
+    public UserPermissionsControllerTest() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     public void testGetUserPermissions_AdminUser() throws Exception {

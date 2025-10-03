@@ -50,6 +50,14 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/admin/**").permitAll() // Dozvoli Admin endpoint-e
                 .requestMatchers("/api/websocket/**").permitAll() // Dozvoli WebSocket test endpoint-e
                 .requestMatchers("/api/user-permissions/**").permitAll() // Dozvoli User Permissions endpoint-e
+                .requestMatchers("/api/generate-envelope-pdf").permitAll() // Dozvoli PDF generisanje
+                .requestMatchers("/api/test-envelope-pdf").permitAll() // Dozvoli test PDF endpoint
+                .requestMatchers("/api/test-pdf-simple").permitAll() // Dozvoli jednostavan test
+                .requestMatchers("/api/test-pdf-font").permitAll() // Dozvoli font test
+                .requestMatchers("/api/test-cyrillic").permitAll() // Dozvoli ćirilica test
+                .requestMatchers("/api/test-font-loading").permitAll() // Dozvoli font loading test
+                .requestMatchers("/api/test-simple-pdf").permitAll() // Dozvoli simple PDF test
+                .requestMatchers("/api/test-basic-pdf").permitAll() // Dozvoli basic PDF test
                 .requestMatchers("/ws/**").permitAll() // Dozvoli WebSocket endpoint-e
                 .anyRequest().authenticated()
             )

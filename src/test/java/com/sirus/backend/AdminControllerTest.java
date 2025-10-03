@@ -17,6 +17,7 @@ import java.util.List;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.mockito.MockitoAnnotations;
 
 @WebMvcTest(AdminController.class)
 public class AdminControllerTest {
@@ -24,8 +25,12 @@ public class AdminControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @org.springframework.boot.test.mock.mockito.MockBean
+    @org.mockito.Mock
     private UserService userService;
+    
+    public AdminControllerTest() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     @Test
     public void testGetAdminUsers() throws Exception {

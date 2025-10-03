@@ -129,19 +129,14 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
         try {
-            logger.info("=== GET CURRENT USER DEBUG ===");
-            logger.info("Auth header: {}", authHeader);
-            
+            // Uklonjen debug logging da se spreči beskonačna petlja
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                logger.error("Invalid authorization header");
                 return ResponseEntity.status(401).body("Invalid authorization header");
             }
             
             String token = authHeader.substring(7); // Remove "Bearer "
-            logger.info("Token: {}", token);
             
             if (!jwtService.validateToken(token)) {
-                logger.error("Invalid token");
                 return ResponseEntity.status(401).body("Invalid token");
             }
             
@@ -149,15 +144,8 @@ public class AuthController {
             String role = jwtService.getRoleFromToken(token);
             Long userId = jwtService.getUserIdFromToken(token);
             
-            logger.info("Username from token: {}", username);
-            logger.info("Role from token: {}", role);
-            logger.info("User ID from token: {}", userId);
-            
             User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-            
-            logger.info("User found: {} with role: {}", user.getUsername(), user.getRole());
-            logger.info("Using role from token: {} instead of database role: {}", role, user.getRole());
             
             // Vrati user data sa role iz JWT tokena (ne iz baze!)
             return ResponseEntity.ok(Map.of(
@@ -171,7 +159,7 @@ public class AuthController {
             ));
             
         } catch (Exception e) {
-            logger.error("Error getting current user: {}", e.getMessage(), e);
+            logger.error("Error getting current user: {}", e.getMessage());
             return ResponseEntity.status(401).body("Error getting current user: " + e.getMessage());
         }
     }

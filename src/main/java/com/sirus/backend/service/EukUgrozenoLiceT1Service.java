@@ -15,13 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import org.springframework.scheduling.annotation.Async;
 
 @Service
 public class EukUgrozenoLiceT1Service {
@@ -69,52 +65,6 @@ public class EukUgrozenoLiceT1Service {
         return convertToDto(savedUgrozenoLice);
     }
     
-    @Transactional
-    public List<EukUgrozenoLiceT1Dto> createBatch(List<EukUgrozenoLiceT1Dto> dtos) {
-        logger.info("Creating batch of {} EUK ugrožena lica T1", dtos.size());
-        
-        List<EukUgrozenoLiceT1> entities = new ArrayList<>();
-        List<EukUgrozenoLiceT1Dto> results = new ArrayList<>();
-        int skippedCount = 0;
-        
-        for (EukUgrozenoLiceT1Dto dto : dtos) {
-            try {
-                // Validacija za batch import - fleksibilnija
-                validateBatchData(dto);
-                
-                // Proveri duplikate
-                if (ugrozenoLiceT1Repository.existsByJmbg(dto.getJmbg())) {
-                    logger.warn("Skipping duplicate JMBG: {} - {}", dto.getJmbg(), dto.getIme());
-                    skippedCount++;
-                    continue;
-                }
-                
-                if (ugrozenoLiceT1Repository.existsByRedniBroj(dto.getRedniBroj())) {
-                    logger.warn("Skipping duplicate redni broj: {} - {}", dto.getRedniBroj(), dto.getIme());
-                    skippedCount++;
-                    continue;
-                }
-                
-                entities.add(convertToEntity(dto));
-                
-            } catch (Exception e) {
-                logger.warn("Skipping record due to validation error: {} {} - {}", 
-                           dto.getIme(), dto.getPrezime(), e.getMessage());
-                skippedCount++;
-            }
-        }
-        
-        if (!entities.isEmpty()) {
-            List<EukUgrozenoLiceT1> savedEntities = ugrozenoLiceT1Repository.saveAll(entities);
-            results = savedEntities.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-        }
-        
-        logger.info("Batch import completed: {} valid records processed, {} skipped out of {} total", 
-                   results.size(), skippedCount, dtos.size());
-        return results;
-    }
     
     @Transactional
     public EukUgrozenoLiceT1Dto update(Integer id, EukUgrozenoLiceT1Dto dto) {
@@ -249,146 +199,6 @@ public class EukUgrozenoLiceT1Service {
         return stats;
     }
     
-    // Progress tracking za batch import
-    private static final Map<String, Map<String, Object>> batchProgress = new ConcurrentHashMap<>();
-    
-    @Async
-    public void createBatchWithProgress(List<EukUgrozenoLiceT1Dto> dtos, String batchId) {
-        logger.info("Starting batch processing with ID: {} for {} records", batchId, dtos.size());
-        
-        // Inicijalizuj progress
-        Map<String, Object> progress = new HashMap<>();
-        progress.put("batchId", batchId);
-        progress.put("status", "PROCESSING");
-        progress.put("totalRecords", dtos.size());
-        progress.put("processedRecords", 0);
-        progress.put("skippedRecords", 0);
-        progress.put("successRecords", 0);
-        progress.put("errorRecords", 0);
-        progress.put("startTime", System.currentTimeMillis());
-        progress.put("currentRecord", "");
-        progress.put("errors", new ArrayList<String>());
-        
-        batchProgress.put(batchId, progress);
-        
-        try {
-            List<EukUgrozenoLiceT1> entities = new ArrayList<>();
-            int skippedCount = 0;
-            int successCount = 0;
-            int errorCount = 0;
-            List<String> errors = new ArrayList<>();
-            
-            for (int i = 0; i < dtos.size(); i++) {
-                EukUgrozenoLiceT1Dto dto = dtos.get(i);
-                
-                try {
-                    // Update progress
-                    progress.put("processedRecords", i + 1);
-                    progress.put("currentRecord", dto.getIme() + " " + dto.getPrezime());
-                    progress.put("percentage", Math.round(((double) (i + 1) / dtos.size()) * 100));
-                    
-                    // Validacija za batch import - fleksibilnija
-                    validateBatchData(dto);
-                    
-                    // Proveri duplikate
-                    if (ugrozenoLiceT1Repository.existsByJmbg(dto.getJmbg())) {
-                        logger.warn("Skipping duplicate JMBG: {} - {}", dto.getJmbg(), dto.getIme());
-                        skippedCount++;
-                        progress.put("skippedRecords", skippedCount);
-                        continue;
-                    }
-                    
-                    if (ugrozenoLiceT1Repository.existsByRedniBroj(dto.getRedniBroj())) {
-                        logger.warn("Skipping duplicate redni broj: {} - {}", dto.getRedniBroj(), dto.getIme());
-                        skippedCount++;
-                        progress.put("skippedRecords", skippedCount);
-                        continue;
-                    }
-                    
-                    entities.add(convertToEntity(dto));
-                    successCount++;
-                    progress.put("successRecords", successCount);
-                    
-                } catch (Exception e) {
-                    logger.warn("Skipping record due to validation error: {} {} - {}", 
-                               dto.getIme(), dto.getPrezime(), e.getMessage());
-                    errorCount++;
-                    errors.add(dto.getIme() + " " + dto.getPrezime() + ": " + e.getMessage());
-                    progress.put("errorRecords", errorCount);
-                    progress.put("errors", errors);
-                }
-                
-                // Pauza između zapisa za bolje performanse
-                if (i % 10 == 0) {
-                    Thread.sleep(10);
-                }
-            }
-            
-            // Sačuvaj sve entitete odjednom
-            if (!entities.isEmpty()) {
-                List<EukUgrozenoLiceT1> savedEntities = ugrozenoLiceT1Repository.saveAll(entities);
-                logger.info("Saved {} entities to database", savedEntities.size());
-            }
-            
-            // Finalni progress
-            progress.put("status", "COMPLETED");
-            progress.put("endTime", System.currentTimeMillis());
-            progress.put("duration", (Long) progress.get("endTime") - (Long) progress.get("startTime"));
-            progress.put("finalMessage", String.format("Import završen: %d uspešno, %d preskočeno, %d grešaka od %d ukupno", 
-                                                       successCount, skippedCount, errorCount, dtos.size()));
-            
-            logger.info("Batch processing completed for ID: {} - {} successful, {} skipped, {} errors", 
-                       batchId, successCount, skippedCount, errorCount);
-            
-        } catch (Exception e) {
-            logger.error("Error in batch processing for ID: {}", batchId, e);
-            progress.put("status", "ERROR");
-            progress.put("errorMessage", e.getMessage());
-            progress.put("endTime", System.currentTimeMillis());
-        }
-    }
-    
-    public Map<String, Object> getBatchProgress(String batchId) {
-        Map<String, Object> progress = batchProgress.get(batchId);
-        if (progress == null) {
-            Map<String, Object> notFound = new HashMap<>();
-            notFound.put("status", "NOT_FOUND");
-            notFound.put("message", "Batch ID not found: " + batchId);
-            return notFound;
-        }
-        return progress;
-    }
-    
-    // Fleksibilnija validacija za batch import
-    private void validateBatchData(EukUgrozenoLiceT1Dto dto) {
-        // Samo osnovne validacije za batch import
-        if (dto.getJmbg() == null || dto.getJmbg().trim().isEmpty()) {
-            throw new EukException("JMBG je obavezan");
-        }
-        
-        if (dto.getIme() == null || dto.getIme().trim().isEmpty()) {
-            throw new EukException("Ime je obavezno");
-        }
-        
-        if (dto.getPrezime() == null || dto.getPrezime().trim().isEmpty()) {
-            throw new EukException("Prezime je obavezno");
-        }
-        
-        if (dto.getRedniBroj() == null || dto.getRedniBroj().trim().isEmpty()) {
-            throw new EukException("Redni broj je obavezan");
-        }
-        
-        // Validacija PTT broja - skrati ako je predugačak
-        if (dto.getPttBroj() != null && dto.getPttBroj().length() > 10) {
-            dto.setPttBroj(dto.getPttBroj().substring(0, 10));
-            logger.warn("PTT broj skraćen na 10 karaktera za JMBG: {}", dto.getJmbg());
-        }
-        
-        // Validacija JMBG formata - samo ako nije prazan
-        if (!dto.getJmbg().matches("^\\d{13}$")) {
-            logger.warn("JMBG '{}' nije u ispravnom formatu (13 cifara), ali se prihvata", dto.getJmbg());
-        }
-    }
     
     // Validacije
     private void validateUgrozenoLiceT1Data(EukUgrozenoLiceT1Dto dto) {

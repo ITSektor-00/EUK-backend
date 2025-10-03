@@ -19,8 +19,13 @@ public class WebSocketEventListener {
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headerAccessor.getSessionId();
-        String origin = headerAccessor.getSessionAttributes() != null ? 
-            (String) headerAccessor.getSessionAttributes().get("origin") : "unknown";
+        String origin = "unknown";
+        if (headerAccessor.getSessionAttributes() != null) {
+            Object originObj = headerAccessor.getSessionAttributes().get("origin");
+            if (originObj != null) {
+                origin = originObj.toString();
+            }
+        }
         
         logger.info("WebSocket connected - Session ID: {}, Origin: {}", sessionId, origin);
     }
@@ -29,8 +34,13 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String sessionId = headerAccessor.getSessionId();
-        String origin = headerAccessor.getSessionAttributes() != null ? 
-            (String) headerAccessor.getSessionAttributes().get("origin") : "unknown";
+        String origin = "unknown";
+        if (headerAccessor.getSessionAttributes() != null) {
+            Object originObj = headerAccessor.getSessionAttributes().get("origin");
+            if (originObj != null) {
+                origin = originObj.toString();
+            }
+        }
         
         logger.info("WebSocket disconnected - Session ID: {}, Origin: {}", sessionId, origin);
     }
