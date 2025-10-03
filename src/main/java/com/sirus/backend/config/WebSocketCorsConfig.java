@@ -20,7 +20,7 @@ public class WebSocketCorsConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(@NonNull StompEndpointRegistry registry) {
         logger.info("Configuring WebSocket endpoints...");
         
-        // WebSocket endpoint sa CORS podrškom
+        // WebSocket endpoint sa CORS podrškom - samo za WebSocket
         registry.addEndpoint("/ws")
                 .setAllowedOrigins(
                     "https://euk.vercel.app", 
@@ -31,10 +31,8 @@ public class WebSocketCorsConfig implements WebSocketMessageBrokerConfigurer {
                     "http://localhost:8080",
                     "http://127.0.0.1:8080",
                     "http://localhost:3001",
-                    "http://127.0.0.1:3001",
-                    "null" // Za file:// protokol
+                    "http://127.0.0.1:3001"
                 )
-                .setAllowedOriginPatterns("*")
                 .withSockJS()
                 .setHeartbeatTime(25000)
                 .setDisconnectDelay(5000)
@@ -53,7 +51,7 @@ public class WebSocketCorsConfig implements WebSocketMessageBrokerConfigurer {
                     "http://localhost:8080",
                     "http://127.0.0.1:8080"
                 )
-                .setAllowedOriginPatterns("*");
+;
                 
         logger.info("WebSocket endpoints configured successfully");
     }

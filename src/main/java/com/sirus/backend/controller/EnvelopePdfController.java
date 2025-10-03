@@ -19,7 +19,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
 public class EnvelopePdfController {
     
     
@@ -457,6 +456,11 @@ public class EnvelopePdfController {
         }
     }
     
+    @RequestMapping(value = "/generate-envelope-pdf", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleOptions() {
+        return ResponseEntity.ok().build();
+    }
+    
     @PostMapping(value = "/generate-envelope-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generateEnvelopePdf(@Valid @RequestBody EnvelopePdfRequest request) {
         try {
@@ -498,11 +502,7 @@ public class EnvelopePdfController {
             headers.setPragma("no-cache");
             headers.setExpires(0);
             
-            // Dodaj CORS headers za download
-            headers.add("Access-Control-Allow-Origin", "*");
-            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
-            headers.add("Access-Control-Expose-Headers", "Content-Disposition, Content-Type, Content-Length");
+            // CORS headers se automatski dodaju kroz globalnu konfiguraciju
             
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
             
@@ -570,6 +570,11 @@ public class EnvelopePdfController {
         }
     }
     
+    @RequestMapping(value = "/generate-envelope-back-side-pdf", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleBackSideOptions() {
+        return ResponseEntity.ok().build();
+    }
+    
     @PostMapping(value = "/generate-envelope-back-side-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<?> generateEnvelopeBackSidePdf(@Valid @RequestBody EnvelopeBackSidePdfRequest request) {
         try {
@@ -611,11 +616,7 @@ public class EnvelopePdfController {
             headers.setPragma("no-cache");
             headers.setExpires(0);
             
-            // Dodaj CORS headers za download
-            headers.add("Access-Control-Allow-Origin", "*");
-            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
-            headers.add("Access-Control-Expose-Headers", "Content-Disposition, Content-Type, Content-Length");
+            // CORS headers se automatski dodaju kroz globalnu konfiguraciju
             
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
             

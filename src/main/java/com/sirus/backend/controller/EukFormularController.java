@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/euk/formulari")
-@CrossOrigin(origins = "*")
 public class EukFormularController {
     
     @Autowired

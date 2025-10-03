@@ -15,7 +15,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/import")
-@CrossOrigin(origins = "*")
 public class ImportController {
     
     private static final Logger logger = LoggerFactory.getLogger(ImportController.class);
@@ -30,10 +29,14 @@ public class ImportController {
     @PostMapping("/excel")
     public ResponseEntity<Map<String, Object>> uploadExcel(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("table") String tableName) {
+            @RequestParam(value = "table", required = false) String table,
+            @RequestParam(value = "tableName", required = false) String tableName) {
+        
+        // Kompatibilnost - prihvata i 'table' i 'tableName' parametre
+        String finalTableName = table != null ? table : tableName;
         
         logger.info("POST /api/import/excel - Received Excel file: {} ({} bytes) for table: {}", 
-                   file.getOriginalFilename(), file.getSize(), tableName);
+                   file.getOriginalFilename(), file.getSize(), finalTableName);
         
         try {
             // Validacija fajla
@@ -49,9 +52,15 @@ public class ImportController {
             }
             
             // Validacija tabele
-            TableImportConfig.TableMapping tableMapping = TableImportConfig.getTableMapping(tableName);
+            if (finalTableName == null || finalTableName.trim().isEmpty()) {
+                logger.warn("Missing table parameter");
+                return ResponseEntity.badRequest().body(createErrorResponse("MISSING_TABLE", 
+                    "Nedostaje parametar 'table' ili 'tableName'"));
+            }
+            
+            TableImportConfig.TableMapping tableMapping = TableImportConfig.getTableMapping(finalTableName);
             if (tableMapping == null) {
-                logger.warn("Invalid table name: {}", tableName);
+                logger.warn("Invalid table name: {}", finalTableName);
                 return ResponseEntity.badRequest().body(createErrorResponse("INVALID_TABLE", 
                     "Neispravan naziv tabele. Dostupne tabele: " + String.join(", ", TableImportConfig.getAvailableTables())));
             }
@@ -68,9 +77,9 @@ public class ImportController {
             }
             
             // Pokretanje sinhronizovane obrade
-            Map<String, Object> result = importService.processExcelSync(fileContent, file.getOriginalFilename(), tableName);
+            Map<String, Object> result = importService.processExcelSync(fileContent, file.getOriginalFilename(), finalTableName);
             
-            logger.info("Excel import completed for file: {} to table: {}", file.getOriginalFilename(), tableName);
+            logger.info("Excel import completed for file: {} to table: {}", file.getOriginalFilename(), finalTableName);
             
             return ResponseEntity.ok(result);
             
@@ -88,10 +97,14 @@ public class ImportController {
     @PostMapping("/excel/validate")
     public ResponseEntity<Map<String, Object>> validateExcel(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("table") String tableName) {
+            @RequestParam(value = "table", required = false) String table,
+            @RequestParam(value = "tableName", required = false) String tableName) {
+        
+        // Kompatibilnost - prihvata i 'table' i 'tableName' parametre
+        String finalTableName = table != null ? table : tableName;
         
         logger.info("POST /api/import/excel/validate - Validating Excel file: {} for table: {}", 
-                   file.getOriginalFilename(), tableName);
+                   file.getOriginalFilename(), finalTableName);
         
         try {
             // Validacija fajla
@@ -105,14 +118,19 @@ public class ImportController {
             }
             
             // Validacija tabele
-            TableImportConfig.TableMapping tableMapping = TableImportConfig.getTableMapping(tableName);
+            if (finalTableName == null || finalTableName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(createErrorResponse("MISSING_TABLE", 
+                    "Nedostaje parametar 'table' ili 'tableName'"));
+            }
+            
+            TableImportConfig.TableMapping tableMapping = TableImportConfig.getTableMapping(finalTableName);
             if (tableMapping == null) {
                 return ResponseEntity.badRequest().body(createErrorResponse("INVALID_TABLE", 
                     "Neispravan naziv tabele. Dostupne tabele: " + String.join(", ", TableImportConfig.getAvailableTables())));
             }
             
             // Validacija Excel fajla
-            Map<String, Object> validationResult = importService.validateExcelFile(file, tableName);
+            Map<String, Object> validationResult = importService.validateExcelFile(file, finalTableName);
             
             return ResponseEntity.ok(validationResult);
             

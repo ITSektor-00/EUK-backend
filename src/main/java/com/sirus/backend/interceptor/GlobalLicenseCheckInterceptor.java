@@ -26,7 +26,10 @@ public class GlobalLicenseCheckInterceptor implements HandlerInterceptor {
         "/api/auth/register",
         "/api/global-license/create", // Admin endpoint za kreiranje licence
         "/api/generate-envelope-pdf", // PDF generisanje
+        "/api/generate-envelope-back-side-pdf", // Back side PDF generisanje
         "/api/test-envelope-pdf", // Test PDF endpoint
+        "/api/test-pdf", // Test PDF endpoint
+        "/api/export/", // Export endpoint-i
         "/error",
         "/actuator",
         "/swagger-ui",

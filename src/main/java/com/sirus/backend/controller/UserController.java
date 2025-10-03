@@ -16,7 +16,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {"https://euk.vercel.app", "https://euk-it-sectors-projects.vercel.app", "http://localhost:3000", "http://127.0.0.1:3000"})
 public class UserController {
     
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);

@@ -38,7 +38,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             requestURI.startsWith("/api/test/") || 
             requestURI.startsWith("/actuator/") ||
             requestURI.startsWith("/api/generate-envelope-pdf") ||
+            requestURI.startsWith("/api/generate-envelope-back-side-pdf") ||
             requestURI.startsWith("/api/test-envelope-pdf") ||
+            requestURI.startsWith("/api/test-pdf") ||
+            requestURI.startsWith("/api/export/") ||
             requestURI.equals("/h2-console")) {
             filterChain.doFilter(request, response);
             return;

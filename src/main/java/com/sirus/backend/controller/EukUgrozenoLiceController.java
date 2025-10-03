@@ -22,7 +22,6 @@ import java.util.HashMap;
  */
 @RestController
 @RequestMapping("/api/euk/ugrozena-lica")
-@CrossOrigin(origins = "*")
 @Deprecated
 public class EukUgrozenoLiceController {
 

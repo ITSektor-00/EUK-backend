@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/websocket")
-@CrossOrigin(origins = "*")
 public class TestWebSocketController {
 
     @GetMapping("/test")

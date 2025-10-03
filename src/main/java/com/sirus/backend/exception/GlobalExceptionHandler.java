@@ -13,7 +13,6 @@ import org.springframework.web.context.request.WebRequest;
 import java.util.NoSuchElementException;
 
 @ControllerAdvice
-@CrossOrigin(origins = {"https://euk.vercel.app", "https://euk-it-sectors-projects.vercel.app"})
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthException.class)

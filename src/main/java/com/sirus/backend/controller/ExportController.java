@@ -19,7 +19,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/export")
-@CrossOrigin(origins = "*")
 public class ExportController {
     
     private static final Logger logger = LoggerFactory.getLogger(ExportController.class);
@@ -154,11 +153,7 @@ public class ExportController {
             headers.setContentDispositionFormData("attachment", filename);
             headers.setContentLength(excelData.length);
             
-            // Dodaj CORS headers za download
-            headers.add("Access-Control-Allow-Origin", "*");
-            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
-            headers.add("Access-Control-Expose-Headers", "Content-Disposition, Content-Type, Content-Length");
+            // CORS headers se automatski dodaju kroz globalnu konfiguraciju
             
             logger.info("Successfully exported dynamic Excel: {} bytes, filename: {}", excelData.length, filename);
             

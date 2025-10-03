@@ -50,6 +50,7 @@ public class DevelopmentSecurityConfig {
                 .requestMatchers("/api/websocket/**").permitAll() // Dozvoli WebSocket test endpoint-e
                 .requestMatchers("/api/user-permissions/**").permitAll() // Dozvoli User Permissions endpoint-e
                 .requestMatchers("/api/generate-envelope-pdf").permitAll() // Dozvoli PDF generisanje
+                .requestMatchers("/api/generate-envelope-back-side-pdf").permitAll() // Dozvoli back side PDF generisanje
                 .requestMatchers("/api/test-envelope-pdf").permitAll() // Dozvoli test PDF endpoint
                 .requestMatchers("/api/test-pdf-simple").permitAll() // Dozvoli jednostavan test
                 .requestMatchers("/api/test-pdf-font").permitAll() // Dozvoli font test
@@ -75,18 +76,20 @@ public class DevelopmentSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Development CORS - dozvoli sve origin-e
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        // Development CORS - dozvoli samo localhost:3000
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
-        // Dodaj eksplicitne CORS headers
-        configuration.addExposedHeader("Access-Control-Allow-Origin");
-        configuration.addExposedHeader("Access-Control-Allow-Methods");
-        configuration.addExposedHeader("Access-Control-Allow-Headers");
-        configuration.addExposedHeader("Access-Control-Allow-Credentials");
+        // Dodaj eksplicitne CORS headers za download
+        configuration.addExposedHeader("Content-Disposition");
+        configuration.addExposedHeader("Content-Type");
+        configuration.addExposedHeader("Content-Length");
+        configuration.addExposedHeader("Cache-Control");
+        configuration.addExposedHeader("Pragma");
+        configuration.addExposedHeader("Expires");
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

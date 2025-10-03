@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ugrozeno-lice-t2")
-@CrossOrigin(origins = "*")
 public class EukUgrozenoLiceT2Controller {
     
     @Autowired

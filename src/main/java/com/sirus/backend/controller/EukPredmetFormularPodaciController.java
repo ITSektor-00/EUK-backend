@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/euk/predmet-formular-podaci")
-@CrossOrigin(origins = "*")
 public class EukPredmetFormularPodaciController {
     
     @Autowired

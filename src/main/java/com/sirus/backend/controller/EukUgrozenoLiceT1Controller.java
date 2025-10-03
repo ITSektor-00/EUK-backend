@@ -18,7 +18,6 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/euk/ugrozena-lica-t1")
-@CrossOrigin(origins = "*")
 public class EukUgrozenoLiceT1Controller {
     
     private static final Logger logger = LoggerFactory.getLogger(EukUgrozenoLiceT1Controller.class);

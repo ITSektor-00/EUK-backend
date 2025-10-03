@@ -16,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/euk/kategorije")
-@CrossOrigin(origins = "*")
 public class EukKategorijaController {
     
     private static final Logger logger = LoggerFactory.getLogger(EukKategorijaController.class);

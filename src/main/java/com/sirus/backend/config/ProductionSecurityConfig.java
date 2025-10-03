@@ -51,6 +51,7 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/websocket/**").permitAll() // Dozvoli WebSocket test endpoint-e
                 .requestMatchers("/api/user-permissions/**").permitAll() // Dozvoli User Permissions endpoint-e
                 .requestMatchers("/api/generate-envelope-pdf").permitAll() // Dozvoli PDF generisanje
+                .requestMatchers("/api/generate-envelope-back-side-pdf").permitAll() // Dozvoli back side PDF generisanje
                 .requestMatchers("/api/test-envelope-pdf").permitAll() // Dozvoli test PDF endpoint
                 .requestMatchers("/api/test-pdf-simple").permitAll() // Dozvoli jednostavan test
                 .requestMatchers("/api/test-pdf-font").permitAll() // Dozvoli font test
@@ -58,6 +59,10 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/test-font-loading").permitAll() // Dozvoli font loading test
                 .requestMatchers("/api/test-simple-pdf").permitAll() // Dozvoli simple PDF test
                 .requestMatchers("/api/test-basic-pdf").permitAll() // Dozvoli basic PDF test
+                .requestMatchers("/api/test-envelope-back-side-pdf").permitAll() // Dozvoli test back side PDF
+                .requestMatchers("/api/test-font-pdf").permitAll() // Dozvoli test font PDF
+                .requestMatchers("/api/export/**").permitAll() // Dozvoli sve export endpoint-e
+                .requestMatchers("/api/import/**").permitAll() // Dozvoli sve import endpoint-e
                 .requestMatchers("/ws/**").permitAll() // Dozvoli WebSocket endpoint-e
                 .anyRequest().authenticated()
             )
@@ -81,7 +86,7 @@ public class ProductionSecurityConfig {
         if (allowedDomains != null && !allowedDomains.isEmpty()) {
             configuration.setAllowedOrigins(Arrays.asList(allowedDomains.split(",")));
         } else {
-            // Default domains
+            // Default domains - eksplicitno dodaj localhost:3000 za development
             configuration.setAllowedOrigins(List.of(
                 "https://euk.vercel.app",
                 "https://euk-it-sectors-projects.vercel.app",
@@ -96,11 +101,6 @@ public class ProductionSecurityConfig {
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         
-        // Dodaj eksplicitne CORS headers
-        configuration.addExposedHeader("Access-Control-Allow-Origin");
-        configuration.addExposedHeader("Access-Control-Allow-Methods");
-        configuration.addExposedHeader("Access-Control-Allow-Headers");
-        configuration.addExposedHeader("Access-Control-Allow-Credentials");
         
         // Dodaj headers za file download
         configuration.addExposedHeader("Content-Disposition");
@@ -111,7 +111,8 @@ public class ProductionSecurityConfig {
         configuration.addExposedHeader("Expires");
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        // Registruj CORS samo za API endpoint-e, ne za sve
+        source.registerCorsConfiguration("/api/**", configuration);
         return source;
     }
 

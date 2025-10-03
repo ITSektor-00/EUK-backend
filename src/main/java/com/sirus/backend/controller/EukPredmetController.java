@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/euk/predmeti")
-@CrossOrigin(origins = "*")
 public class EukPredmetController {
     
     private static final Logger logger = LoggerFactory.getLogger(EukPredmetController.class);

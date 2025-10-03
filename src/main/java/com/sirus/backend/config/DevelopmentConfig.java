@@ -39,7 +39,6 @@ public class DevelopmentConfig implements WebMvcConfigurer {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/**").permitAll() // Dozvoli sve zahteve u development
@@ -57,46 +56,5 @@ public class DevelopmentConfig implements WebMvcConfigurer {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Dozvoli EUK domene i localhost za development
-        configuration.setAllowedOrigins(List.of(
-            "https://euk.vercel.app",
-            "https://euk-it-sectors-projects.vercel.app",
-            "http://localhost:3000",
-            "http://localhost:3001",
-            "http://127.0.0.1:3000"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        
-        // Dodaj CORS headers eksplicitno
-        configuration.addExposedHeader("Access-Control-Allow-Origin");
-        configuration.addExposedHeader("Access-Control-Allow-Methods");
-        configuration.addExposedHeader("Access-Control-Allow-Headers");
-        configuration.addExposedHeader("Access-Control-Allow-Credentials");
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-                .allowedOrigins(
-                    "https://euk.vercel.app",
-                    "https://euk-it-sectors-projects.vercel.app",
-                    "http://localhost:3000",
-                    "http://localhost:3001",
-                    "http://127.0.0.1:3000"
-                )
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true)
-                .maxAge(3600);
-    }
+    // CORS konfiguracija se koristi iz DevelopmentSecurityConfig
 } 

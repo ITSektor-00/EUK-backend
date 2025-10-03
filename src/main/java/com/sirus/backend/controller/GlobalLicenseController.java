@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/global-license")
-@CrossOrigin(origins = "*")
 public class GlobalLicenseController {
     
     @Autowired
