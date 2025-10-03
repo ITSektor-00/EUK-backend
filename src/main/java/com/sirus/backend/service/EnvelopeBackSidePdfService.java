@@ -144,25 +144,42 @@ public class EnvelopeBackSidePdfService {
             System.out.println("✅ Fonts loaded from resources with FORCE_EMBEDDED");
         } catch (Exception e) {
             System.out.println("❌ Resources fonts failed: " + e.getMessage());
-            // Fallback na Windows fonts
+            // Fallback na Linux system fonts (Render.com)
             try {
+                // Pokušaj sa Linux system fonts
                 font = PdfFontFactory.createFont(
-                    "C:/Windows/Fonts/arial.ttf",
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
                     PdfEncodings.IDENTITY_H,
                     PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
                 );
                 boldFont = PdfFontFactory.createFont(
-                    "C:/Windows/Fonts/arialbd.ttf", // Arial Bold
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
                     PdfEncodings.IDENTITY_H,
                     PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
                 );
-                System.out.println("✅ Windows fonts loaded with FORCE_EMBEDDED");
+                System.out.println("✅ Linux system fonts loaded with FORCE_EMBEDDED");
             } catch (Exception e2) {
-                System.out.println("❌ Windows fonts failed: " + e2.getMessage());
-                // Fallback na standardni font
-                font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
-                boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
-                System.out.println("⚠️ WARNING: Fallback to Helvetica - ćirilica neće raditi!");
+                System.out.println("❌ Linux fonts failed: " + e2.getMessage());
+                // Fallback na Windows fonts (development)
+                try {
+                    font = PdfFontFactory.createFont(
+                        "C:/Windows/Fonts/arial.ttf",
+                        PdfEncodings.IDENTITY_H,
+                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+                    );
+                    boldFont = PdfFontFactory.createFont(
+                        "C:/Windows/Fonts/arialbd.ttf",
+                        PdfEncodings.IDENTITY_H,
+                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+                    );
+                    System.out.println("✅ Windows fonts loaded with FORCE_EMBEDDED");
+                } catch (Exception e3) {
+                    System.out.println("❌ Windows fonts failed: " + e3.getMessage());
+                    // Final fallback na standardni font
+                    font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+                    boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+                    System.out.println("⚠️ WARNING: Fallback to Helvetica - ćirilica neće raditi!");
+                }
             }
         }
         
