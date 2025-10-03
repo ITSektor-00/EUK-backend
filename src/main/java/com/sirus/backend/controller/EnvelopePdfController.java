@@ -498,6 +498,12 @@ public class EnvelopePdfController {
             headers.setPragma("no-cache");
             headers.setExpires(0);
             
+            // Dodaj CORS headers za download
+            headers.add("Access-Control-Allow-Origin", "*");
+            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            headers.add("Access-Control-Expose-Headers", "Content-Disposition, Content-Type, Content-Length");
+            
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
             
         } catch (IOException e) {
@@ -604,6 +610,12 @@ public class EnvelopePdfController {
             headers.setCacheControl("no-cache, no-store, must-revalidate");
             headers.setPragma("no-cache");
             headers.setExpires(0);
+            
+            // Dodaj CORS headers za download
+            headers.add("Access-Control-Allow-Origin", "*");
+            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            headers.add("Access-Control-Expose-Headers", "Content-Disposition, Content-Type, Content-Length");
             
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
             

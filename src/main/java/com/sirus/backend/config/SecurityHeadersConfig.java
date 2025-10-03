@@ -27,7 +27,10 @@ public class SecurityHeadersConfig {
                 response.setHeader("X-Frame-Options", "DENY");
                 response.setHeader("X-XSS-Protection", "1; mode=block");
                 response.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-                response.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://euk.vercel.app https://euk-it-sectors-projects.vercel.app; style-src 'self' 'unsafe-inline' https://euk.vercel.app https://euk-it-sectors-projects.vercel.app; connect-src 'self' https://euk.vercel.app https://euk-it-sectors-projects.vercel.app;");
+                
+                // Content-Security-Policy - dozvoli download
+                response.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://euk.vercel.app https://euk-it-sectors-projects.vercel.app; style-src 'self' 'unsafe-inline' https://euk.vercel.app https://euk-it-sectors-projects.vercel.app; connect-src 'self' https://euk.vercel.app https://euk-it-sectors-projects.vercel.app; object-src 'none'; base-uri 'self';");
+                
                 response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
                 response.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
                 

@@ -102,6 +102,14 @@ public class ProductionSecurityConfig {
         configuration.addExposedHeader("Access-Control-Allow-Headers");
         configuration.addExposedHeader("Access-Control-Allow-Credentials");
         
+        // Dodaj headers za file download
+        configuration.addExposedHeader("Content-Disposition");
+        configuration.addExposedHeader("Content-Type");
+        configuration.addExposedHeader("Content-Length");
+        configuration.addExposedHeader("Cache-Control");
+        configuration.addExposedHeader("Pragma");
+        configuration.addExposedHeader("Expires");
+        
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

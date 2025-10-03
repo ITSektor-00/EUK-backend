@@ -154,6 +154,12 @@ public class ExportController {
             headers.setContentDispositionFormData("attachment", filename);
             headers.setContentLength(excelData.length);
             
+            // Dodaj CORS headers za download
+            headers.add("Access-Control-Allow-Origin", "*");
+            headers.add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+            headers.add("Access-Control-Expose-Headers", "Content-Disposition, Content-Type, Content-Length");
+            
             logger.info("Successfully exported dynamic Excel: {} bytes, filename: {}", excelData.length, filename);
             
             return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
