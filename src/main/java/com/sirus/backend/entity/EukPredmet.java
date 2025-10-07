@@ -111,6 +111,15 @@ public class EukPredmet {
     @Column(name = "kategorija_skracenica", length = 10)
     private String kategorijaSkracenica;
     
+    @Column(name = "template_file_path", length = 500)
+    private String templateFilePath;
+    
+    @Column(name = "template_generated_at")
+    private java.time.LocalDateTime templateGeneratedAt;
+    
+    @Column(name = "template_status", length = 50)
+    private String templateStatus;
+    
     
     // Getters and Setters
     public Integer getPredmetId() {
@@ -183,6 +192,30 @@ public class EukPredmet {
     
     public void setKategorijaSkracenica(String kategorijaSkracenica) {
         this.kategorijaSkracenica = kategorijaSkracenica;
+    }
+    
+    public String getTemplateFilePath() {
+        return templateFilePath;
+    }
+    
+    public void setTemplateFilePath(String templateFilePath) {
+        this.templateFilePath = templateFilePath;
+    }
+    
+    public java.time.LocalDateTime getTemplateGeneratedAt() {
+        return templateGeneratedAt;
+    }
+    
+    public void setTemplateGeneratedAt(java.time.LocalDateTime templateGeneratedAt) {
+        this.templateGeneratedAt = templateGeneratedAt;
+    }
+    
+    public String getTemplateStatus() {
+        return templateStatus;
+    }
+    
+    public void setTemplateStatus(String templateStatus) {
+        this.templateStatus = templateStatus;
     }
     
 }

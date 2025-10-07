@@ -42,6 +42,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             requestURI.startsWith("/api/test-envelope-pdf") ||
             requestURI.startsWith("/api/test-pdf") ||
             requestURI.startsWith("/api/export/") ||
+            requestURI.startsWith("/api/template/") ||
+            requestURI.startsWith("/api/kategorije/") ||
+            requestURI.startsWith("/api/obrasci-vrste") ||
+            requestURI.startsWith("/api/organizaciona-struktura") ||
+            requestURI.startsWith("/api/predmeti/") ||
+            requestURI.startsWith("/api/euk/") ||
+            requestURI.startsWith("/api/t1-lice") ||
+            requestURI.startsWith("/api/t2-lice") ||
             requestURI.equals("/h2-console")) {
             filterChain.doFilter(request, response);
             return;

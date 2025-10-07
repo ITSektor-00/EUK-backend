@@ -58,6 +58,16 @@ public class DevelopmentSecurityConfig {
                 .requestMatchers("/api/test-font-loading").permitAll() // Dozvoli font loading test
                 .requestMatchers("/api/test-simple-pdf").permitAll() // Dozvoli simple PDF test
                 .requestMatchers("/api/test-basic-pdf").permitAll() // Dozvoli basic PDF test
+                .requestMatchers("/api/template/**").permitAll() // Dozvoli template endpoint-e
+                .requestMatchers("/api/template/obrasci-vrste/**").permitAll() // Dozvoli template obrasci vrste
+                .requestMatchers("/api/template/organizaciona-struktura/**").permitAll() // Dozvoli template organizaciona struktura
+                .requestMatchers("/api/kategorije/**").permitAll() // Dozvoli kategorije endpoint-e
+                .requestMatchers("/api/obrasci-vrste/**").permitAll() // Dozvoli obrasci vrste endpoint-e
+                .requestMatchers("/api/organizaciona-struktura/**").permitAll() // Dozvoli organizaciona struktura endpoint-e
+                .requestMatchers("/api/predmeti/**").permitAll() // Dozvoli predmeti endpoint-e
+                .requestMatchers("/api/t1-lice/**").permitAll() // Dozvoli T1 lice endpoint-e
+                .requestMatchers("/api/t2-lice/**").permitAll() // Dozvoli T2 lice endpoint-e
+                .requestMatchers("/generated_templates/**").permitAll() // Dozvoli pristup generisanim template-ima
                 .requestMatchers("/ws/**").permitAll() // Dozvoli WebSocket endpoint-e
                 .anyRequest().authenticated()
             )

@@ -1,11 +1,12 @@
 version: '3.8'
 
 services:
+  # Backend service
   sirus-backend:
     image: sirus-backend:latest
     container_name: sirus-backend
     ports:
-      - "8081:8080"
+      - "8080:8080"
     env_file:
       - .env
     environment:
@@ -22,9 +23,6 @@ services:
       start_period: 40s
     networks:
       - sirus-network
-    labels:
-      - "euk.domains=http://localhost:3000,https://euk.vercel.app,https://euk-it-sectors-projects.vercel.app"
-      - "euk.rate-limit=150"
 
   # Frontend service
   sirus-frontend:
@@ -35,7 +33,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - REACT_APP_API_URL=http://localhost:8081
+      - REACT_APP_API_URL=http://localhost:8080
     depends_on:
       - sirus-backend
     restart: unless-stopped
@@ -44,4 +42,4 @@ services:
 
 networks:
   sirus-network:
-    driver: bridge 
+    driver: bridge

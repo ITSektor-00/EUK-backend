@@ -1,68 +1,35 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: euk-postgres
-    environment:
-      POSTGRES_DB: euk_database
-      POSTGRES_USER: euk_user
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./src/main/resources/prod/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./src/main/resources/prod/routes_schema.sql:/docker-entrypoint-initdb.d/02-routes.sql
+  sirus-fullstack:
+    build:
+      context: .
+      dockerfile: Dockerfile.multi
+    container_name: sirus-fullstack
     ports:
-      - "5432:5432"
-    restart: unless-stopped
-    networks:
-      - euk-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U euk_user -d euk_database"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    labels:
-      - "euk.service=postgresql"
-      - "euk.environment=production"
-
-  sirus-backend:
-    image: sirus-backend:latest
-    container_name: sirus-backend
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env
+      - "80:80"      # Frontend
+      - "8080:8080"  # Backend API
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DATABASE_URL=jdbc:postgresql://postgres:5432/euk_database
-      - DATABASE_USERNAME=euk_user
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - EUK_ALLOWED_DOMAINS=https://your-domain.com,http://your-server-ip
+      - EUK_RATE_LIMIT_ENABLED=true
+      - EUK_RATE_LIMIT_MAX_REQUESTS=150
+      - DATABASE_URL=jdbc:postgresql://your-db-host:5432/your-db
+      - DATABASE_USERNAME=your-username
+      - DATABASE_PASSWORD=your-password
+      - JWT_SECRET=your-jwt-secret
+      - JWT_EXPIRATION=86400000
+      - ADMIN_PASSWORD=your-admin-password
     restart: unless-stopped
-    networks:
-      - euk-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/test/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
-    labels:
-      - "euk.service=backend"
-      - "euk.environment=production"
-
-volumes:
-  postgres_data:
-    driver: local
-    labels:
-      - "euk.volume=postgres-data"
+      start_period: 40s
+    networks:
+      - sirus-network
 
 networks:
-  euk-network:
+  sirus-network:
     driver: bridge
-    labels:
-      - "euk.network=main"

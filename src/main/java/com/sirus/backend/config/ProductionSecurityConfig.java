@@ -63,6 +63,10 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/test-font-pdf").permitAll() // Dozvoli test font PDF
                 .requestMatchers("/api/export/**").permitAll() // Dozvoli sve export endpoint-e
                 .requestMatchers("/api/import/**").permitAll() // Dozvoli sve import endpoint-e
+                .requestMatchers("/api/template/**").permitAll() // Dozvoli template endpoint-e
+                .requestMatchers("/api/kategorije/**").permitAll() // Dozvoli kategorije endpoint-e
+                .requestMatchers("/api/predmeti/**").permitAll() // Dozvoli predmeti endpoint-e
+                .requestMatchers("/generated_templates/**").permitAll() // Dozvoli pristup generisanim template-ima
                 .requestMatchers("/ws/**").permitAll() // Dozvoli WebSocket endpoint-e
                 .anyRequest().authenticated()
             )

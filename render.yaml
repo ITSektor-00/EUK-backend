@@ -26,7 +26,7 @@ services:
       - key: SECURITY_HEADERS_ENABLED
         value: true
       - key: EUK_ALLOWED_DOMAINS
-        value: https://euk.vercel.app,https://euk-it-sectors-projects.vercel.app,https://euk.onrender.com
+        value: https://euk.vercel.app,https://euk-it-sectors-projects.vercel.app,https://sirus-fullstack.onrender.com
       - key: EUK_RATE_LIMIT_ENABLED
         value: true
       - key: EUK_RATE_LIMIT_MAX_REQUESTS
