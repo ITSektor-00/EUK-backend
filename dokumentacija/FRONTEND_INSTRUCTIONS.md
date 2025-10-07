@@ -1,177 +1,174 @@
-# Frontend Instructions - Energy Columns Update
+# 🚀 Frontend Integracija - Docker Setup
 
-## 🎯 What to Send to Frontend Team
-
-### 1. **Immediate Action Required: NONE**
-- ✅ **No breaking changes
-- ✅ **Existing code continues to work
-- ✅ **Backward compatibility maintained
-
-### 2. **Files to Share with Frontend Team**
-
-#### Core Files:
-1. **`frontend-types.ts`** - TypeScript interfaces and utility functions
-2. **`EnergyFieldsComponent.tsx`** - React component example
-3. **`api-service.ts`** - API service with energy fields support
-4. **`FRONTEND_ENERGY_COLUMNS_UPDATE.md`** - Detailed technical documentation
-5. **`FRONTEND_MIGRATION_CHECKLIST.md`** - Step-by-step migration guide
-
-#### Documentation:
-- **`ENERGY_COLUMNS_MIGRATION_SUMMARY.md`** - Complete migration overview
-- **`FRONTEND_INSTRUCTIONS.md`** - This file
-
-### 3. **Key Points for Frontend Team**
-
-#### ✅ **What Works Now (No Changes Needed)**
-```typescript
-// This continues to work exactly as before
-const formData = {
-  potrosnjaKwh: 2500.50,
-  zagrevanaPovrsinaM2: 75.5,
-  // ... other fields
-};
+## 📁 Struktura Projekta
+Vaš frontend kod treba da bude u ovom formatu:
+```
+euk-backend/
+├── frontend/                    # 👈 VAŠ FRONTEND KOD IDE OVDE
+│   ├── package.json
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── App.js/App.tsx
+│   ├── public/
+│   │   └── index.html
+│   └── dist/                   # Build folder (generiše se automatski)
+├── Dockerfile.multi            # Multi-stage Dockerfile
+├── nginx.conf                  # Nginx konfiguracija
+├── start.sh                    # Start script
+└── docker-compose.prod.yml     # Production Docker Compose
 ```
 
-#### 🆕 **What's New (Optional Enhancement)**
-```typescript
-// New combined field available
-const data = {
-  potrosnjaIPovrsinaCombined: "Потрошња у kWh/2500.50/загревана површина у m2/75.5",
-  // ... other fields
-};
+## ✅ Koraci za Integraciju
+
+### 1. 📂 Kreirajte `frontend/` folder
+```bash
+# U root direktorijumu euk-backend projekta
+mkdir frontend
+# Kopirajte vaš frontend kod u frontend/ folder
 ```
 
-### 4. **Migration Strategy Options**
-
-#### Option 1: **No Changes (Recommended)**
-- Continue using existing code
-- Everything works as before
-- Zero risk, zero effort
-
-#### Option 2: **Gradual Enhancement**
-- Add new TypeScript interfaces
-- Implement parsing utilities
-- Gradually migrate components
-- Maintain backward compatibility
-
-#### Option 3: **Full Migration**
-- Replace all energy field usage
-- Use new combined field structure
-- Requires more development time
-
-### 5. **Implementation Priority**
-
-#### **High Priority (If Choosing Option 2/3):**
-1. Copy `frontend-types.ts` to your project
-2. Add `EnergyDataParser` utility class
-3. Update TypeScript interfaces
-
-#### **Medium Priority:**
-1. Update forms to support both structures
-2. Add parsing logic to display components
-3. Test with new data format
-
-#### **Low Priority:**
-1. Full migration to new structure
-2. Remove old field dependencies
-3. Advanced parsing features
-
-### 6. **Testing Requirements**
-
-#### **Must Test:**
-- [ ] Existing forms still work
-- [ ] Data saves and loads correctly
-- [ ] Search and filtering work
-- [ ] No breaking changes
-
-#### **Should Test:**
-- [ ] New combined field parsing
-- [ ] Backward compatibility
-- [ ] API integration
-- [ ] Error handling
-
-### 7. **Timeline Recommendations**
-
-#### **Week 1:**
-- Review documentation
-- Test existing functionality
-- Plan migration approach
-
-#### **Week 2-3:**
-- Implement chosen approach
-- Test thoroughly
-- Deploy to staging
-
-#### **Week 4:**
-- Production deployment
-- Monitor for issues
-- User feedback
-
-### 8. **Support Information**
-
-#### **Backend Changes:**
-- Database structure updated
-- API endpoints unchanged
-- Backward compatibility maintained
-- New field available
-
-#### **Frontend Impact:**
-- Zero breaking changes
-- Optional enhancements available
-- Gradual migration possible
-- Full backward compatibility
-
-### 9. **Quick Start Guide**
-
-#### **For Immediate Use (No Changes):**
-```typescript
-// Your existing code works as-is
-const response = await api.get('/ugrozeno-lice-t1');
-// Returns data with both old and new fields
+### 2. 📦 Prilagodite package.json
+Vaš `frontend/package.json` treba da ima:
+```json
+{
+  "name": "euk-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm run build:prod",
+    "build:prod": "react-scripts build",
+    "start": "react-scripts start",
+    "test": "react-scripts test"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-scripts": "5.0.1"
+  }
+}
 ```
 
-#### **For Enhanced Features:**
-```typescript
-// Add new interfaces
-import { UgrozenoLiceT1, EnergyDataParser } from './types/frontend-types';
+### 3. 🔗 Prilagodite API URL-ove
+U vašem frontend kodu, koristite relativne putanje:
+```javascript
+// ❌ NE KORISTITE:
+// const API_URL = 'http://localhost:8080/api';
 
-// Parse combined field
-const { potrosnjaKwh, zagrevanaPovrsinaM2 } = 
-  EnergyDataParser.parse(data.potrosnjaIPovrsinaCombined);
+// ✅ KORISTITE:
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
+
+// Primer API poziva:
+const response = await fetch(`${API_BASE_URL}/users`);
 ```
 
-### 10. **Contact Information**
+### 4. 🏗️ Build Proces
+Docker će automatski:
+- ✅ Instalirati npm dependencies
+- ✅ Build-ovati frontend (generiše `dist/` folder)
+- ✅ Kopirati build u nginx folder
+- ✅ Pokrenuti nginx + Spring Boot u istom kontejneru
 
-#### **For Questions:**
-- Backend Team: [Your contact]
-- Database Team: [Your contact]
-- Technical Support: [Your contact]
+## 🚀 Deployment na Server
 
-#### **For Issues:**
-- Check migration checklist
-- Review troubleshooting guide
-- Contact support team
+### 1. Pokretanje na serveru:
+```bash
+# Build i pokretanje
+docker-compose -f docker-compose.prod.yml up --build -d
 
----
+# Proverite status
+docker-compose -f docker-compose.prod.yml ps
 
-## 📋 **Summary for Frontend Team**
+# Pogledajte logove
+docker-compose -f docker-compose.prod.yml logs -f
+```
 
-**TL;DR:** 
-- ✅ **No immediate action required**
-- ✅ **Existing code continues to work**
-- ✅ **New features available when ready**
-- ✅ **Gradual migration possible**
-- ✅ **Full backward compatibility**
+### 2. Environment varijable na serveru:
+Kreirajte `.env` fajl na serveru:
+```env
+SPRING_PROFILES_ACTIVE=prod
+DATABASE_URL=jdbc:postgresql://your-db-host:5432/your-db
+DATABASE_USERNAME=your-username
+DATABASE_PASSWORD=your-password
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRATION=86400000
+ADMIN_PASSWORD=your-admin-password
+EUK_ALLOWED_DOMAINS=https://your-domain.com
+EUK_RATE_LIMIT_ENABLED=true
+EUK_RATE_LIMIT_MAX_REQUESTS=150
+```
 
-**Next Steps:**
-1. Review the provided files
-2. Choose migration approach
-3. Test existing functionality
-4. Plan implementation timeline
-5. Contact backend team for questions
+## 🧪 Lokalno Testiranje
+```bash
+# Build kontejner
+docker build -f Dockerfile.multi -t sirus-full .
 
-**Files to Review:**
-- `FRONTEND_ENERGY_COLUMNS_UPDATE.md` - Technical details
-- `FRONTEND_MIGRATION_CHECKLIST.md` - Step-by-step guide
-- `frontend-types.ts` - TypeScript interfaces
-- `EnergyFieldsComponent.tsx` - React component example
+# Pokreni lokalno
+docker run -p 80:80 -p 8080:8080 sirus-full
+```
+
+## 🌐 URL-ovi
+- **Frontend**: `http://localhost:80` ili `http://localhost`
+- **Backend API**: `http://localhost:8080/api`
+- **Health Check**: `http://localhost:8080/api/test/health`
+
+## 🔧 Kako Funkcioniše
+
+### Nginx Konfiguracija:
+```nginx
+# Frontend se servira na portu 80
+location / {
+    try_files $uri $uri/ /index.html;
+}
+
+# API zahtevi se proxy-uju na Spring Boot
+location /api/ {
+    proxy_pass http://localhost:8080;
+}
+```
+
+### Prednosti:
+- ✅ **Jedan kontejner** = lakši deployment
+- ✅ **Nginx proxy** = automatsko rutiranje
+- ✅ **Production ready** = optimizovano za server
+- ✅ **Lakše održavanje** = sve u jednom mestu
+
+## 📋 Checklist za Frontend Tim
+
+- [ ] Kreirati `frontend/` folder u root direktorijumu
+- [ ] Kopirati frontend kod u `frontend/` folder
+- [ ] Prilagoditi API URL-ove (koristiti `/api` umesto `http://localhost:8080/api`)
+- [ ] Proveriti da `package.json` ima `build` script
+- [ ] Testirati lokalno sa `docker build -f Dockerfile.multi -t sirus-full .`
+- [ ] Deploy na server sa `docker-compose -f docker-compose.prod.yml up --build -d`
+
+## 🆘 Troubleshooting
+
+### Problem: Frontend se ne učitava
+```bash
+# Proverite da li je nginx pokrenut
+docker exec -it sirus-fullstack nginx -t
+
+# Restartujte kontejner
+docker-compose -f docker-compose.prod.yml restart
+```
+
+### Problem: API pozivi ne rade
+```bash
+# Proverite da li Spring Boot radi
+curl http://localhost:8080/api/test/health
+
+# Proverite nginx proxy
+docker exec -it sirus-fullstack cat /etc/nginx/nginx.conf
+```
+
+### Problem: Build ne prolazi
+```bash
+# Proverite da li frontend kod postoji
+ls -la frontend/
+
+# Proverite package.json
+cat frontend/package.json
+```
+
+## 📞 Kontakt
+Za pitanja ili probleme, kontaktirajte backend tim!

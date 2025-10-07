@@ -45,7 +45,7 @@ GET /api/test/ping
 
 ## Deployment
 
-Aplikacija je konfigurisana za deployment na Render.com sa sledećim environment varijablama:
+Aplikacija je konfigurisana za lokalni server deployment sa sledećim environment varijablama:
 
 - `SPRING_PROFILES_ACTIVE=prod`
 - `EUK_ALLOWED_DOMAINS=https://euk.vercel.app,https://euk-it-sectors-projects.vercel.app`

@@ -90,14 +90,15 @@ public class ProductionSecurityConfig {
         if (allowedDomains != null && !allowedDomains.isEmpty()) {
             configuration.setAllowedOrigins(Arrays.asList(allowedDomains.split(",")));
         } else {
-            // Default domains - eksplicitno dodaj localhost:3000 za development
+            // Default domains - eksplicitno dodaj localhost za development
             configuration.setAllowedOrigins(List.of(
                 "https://euk.vercel.app",
                 "https://euk-it-sectors-projects.vercel.app",
-                "https://euk.onrender.com",
+                "http://localhost",
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "http://127.0.0.1:3000"
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1"
             ));
         }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

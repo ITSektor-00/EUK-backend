@@ -25,7 +25,6 @@ public class WebSocketCorsConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOrigins(
                     "https://euk.vercel.app", 
                     "https://euk-it-sectors-projects.vercel.app", 
-                    "https://euk.onrender.com",
                     "http://localhost:3000", 
                     "http://127.0.0.1:3000",
                     "http://localhost:8080",
@@ -45,7 +44,6 @@ public class WebSocketCorsConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOrigins(
                     "https://euk.vercel.app", 
                     "https://euk-it-sectors-projects.vercel.app", 
-                    "https://euk.onrender.com",
                     "http://localhost:3000", 
                     "http://127.0.0.1:3000",
                     "http://localhost:8080",
