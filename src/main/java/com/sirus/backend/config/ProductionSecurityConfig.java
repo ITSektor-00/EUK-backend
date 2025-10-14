@@ -64,6 +64,7 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/export/**").permitAll() // Dozvoli sve export endpoint-e
                 .requestMatchers("/api/import/**").permitAll() // Dozvoli sve import endpoint-e
                 .requestMatchers("/api/template/**").permitAll() // Dozvoli template endpoint-e
+                .requestMatchers("/api/dokumenti/**").permitAll() // Dozvoli dokumenti endpoint-e (generisanje Word dokumenata)
                 .requestMatchers("/api/kategorije/**").permitAll() // Dozvoli kategorije endpoint-e
                 .requestMatchers("/api/predmeti/**").permitAll() // Dozvoli predmeti endpoint-e
                 .requestMatchers("/generated_templates/**").permitAll() // Dozvoli pristup generisanim template-ima

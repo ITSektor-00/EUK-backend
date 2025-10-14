@@ -1,0 +1,26 @@
+{
+  "brojPredmeta": "TEST123/2025",
+  "datumDonosenja": "2025-01-15",
+  "brojOvlascenja": "456/2025",
+  "datumOvlascenja": "2025-01-10",
+  "imeIPrezimeOvlascenog": "Марија Петровић",
+  "imeIPrezimePodnosioca": "Петар Јовановић",
+  "jmbg": "0101990123456",
+  "grad": "Београд",
+  "ulica": "Кнеза Милоша",
+  "brojStana": "15",
+  "opstina": "Савски Венац",
+  "pttBroj": "11000",
+  "mestoStanovanja": "Београд",
+  "datumPodnosenja": "2025-01-05",
+  "osnovPrava": "НСП",
+  "brojClanovaDomacinstava": "4",
+  "prilozenaInfo": "1. Потврда о приходима",
+  "sluzbeniDokazi": "Подаци из Пореске управе",
+  "dodatniTekst": null,
+  "vrsilacDuznosti": true,
+  "sopstveneRuke": false,
+  "dodatakZaPomocOdnosiSe": false,
+  "pribavljaDokumentacijuSluzbeno": true
+}
+

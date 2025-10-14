@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/euk/predmeti")
@@ -32,20 +34,21 @@ public class EukPredmetController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String prioritet,
             @RequestParam(required = false) Integer kategorijaId,
-            @RequestParam(required = false) String odgovornaOsoba) {
+            @RequestParam(required = false) String odgovornaOsoba,
+            @RequestParam(required = false) String nazivPredmeta) {
         
-        logger.info("GET /api/euk/predmeti - Fetching predmeti with filters - page: {}, size: {}, status: {}, prioritet: {}, kategorijaId: {}, odgovornaOsoba: {}", 
-                   page, size, status, prioritet, kategorijaId, odgovornaOsoba);
+        logger.info("GET /api/euk/predmeti - Fetching predmeti with filters - page: {}, size: {}, status: {}, prioritet: {}, kategorijaId: {}, odgovornaOsoba: {}, nazivPredmeta: {}", 
+                   page, size, status, prioritet, kategorijaId, odgovornaOsoba, nazivPredmeta);
         
         try {
             Page<EukPredmetDto> predmeti;
             
-            if (status != null || prioritet != null || kategorijaId != null || odgovornaOsoba != null) {
+            if (status != null || prioritet != null || kategorijaId != null || odgovornaOsoba != null || nazivPredmeta != null) {
                 // Use filtered search
                 EukPredmet.Status statusEnum = status != null ? EukPredmet.Status.valueOf(status.toUpperCase()) : null;
                 EukPredmet.Prioritet prioritetEnum = prioritet != null ? EukPredmet.Prioritet.valueOf(prioritet.toUpperCase()) : null;
                 
-                predmeti = predmetService.findAllWithFilters(statusEnum, prioritetEnum, kategorijaId, odgovornaOsoba, page, size);
+                predmeti = predmetService.findAllWithFilters(statusEnum, prioritetEnum, kategorijaId, odgovornaOsoba, nazivPredmeta, page, size);
             } else {
                 // Use regular search
                 predmeti = predmetService.findAll(page, size);
@@ -72,6 +75,18 @@ public class EukPredmetController {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             logger.error("Error fetching predmet by ID {}: {}", id, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @GetMapping("/nazivi")
+    public ResponseEntity<List<String>> getAllNaziviPredmeta() {
+        logger.info("GET /api/euk/predmeti/nazivi - Fetching all predmet nazivi");
+        try {
+            List<String> nazivi = predmetService.findAllNaziviPredmeta();
+            return ResponseEntity.ok(nazivi);
+        } catch (Exception e) {
+            logger.error("Error fetching predmet nazivi: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

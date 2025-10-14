@@ -15,29 +15,29 @@ public class EukUgrozenoLiceT1 {
     private Integer ugrozenoLiceId;
     
     // Osnovne informacije o licu
-    @Column(name = "redni_broj", length = 20)
+    @Column(name = "redni_broj", length = 20, columnDefinition = "VARCHAR(20)")
     private String redniBroj;
     
-    @Column(name = "ime", length = 100)
+    @Column(name = "ime", length = 100, columnDefinition = "VARCHAR(100)")
     private String ime;
     
-    @Column(name = "prezime", length = 100)
+    @Column(name = "prezime", length = 100, columnDefinition = "VARCHAR(100)")
     private String prezime;
     
-    @Column(name = "jmbg", columnDefinition = "CHAR(13)")
+    @Column(name = "jmbg", length = 50, columnDefinition = "VARCHAR(50)")
     private String jmbg;
     
     // Adresne informacije
-    @Column(name = "ptt_broj", length = 10)
+    @Column(name = "ptt_broj", length = 10, columnDefinition = "VARCHAR(10)")
     private String pttBroj;
     
-    @Column(name = "grad_opstina", length = 100)
+    @Column(name = "grad_opstina", length = 100, columnDefinition = "VARCHAR(100)")
     private String gradOpstina;
     
-    @Column(name = "mesto", length = 100)
+    @Column(name = "mesto", length = 100, columnDefinition = "VARCHAR(100)")
     private String mesto;
     
-    @Column(name = "ulica_i_broj", length = 200)
+    @Column(name = "ulica_i_broj", length = 200, columnDefinition = "VARCHAR(200)")
     private String ulicaIBroj;
     
     // Informacije o domaćinstvu
@@ -45,21 +45,21 @@ public class EukUgrozenoLiceT1 {
     private Integer brojClanovaDomacinstva;
     
     // Energetski status - povezano sa kategorija.skracenica
-    @Column(name = "osnov_sticanja_statusa", length = 10)
+    @Column(name = "osnov_sticanja_statusa", length = 10, columnDefinition = "VARCHAR(10)")
     private String osnovSticanjaStatusa; // Povezano sa kategorija.skracenica
     
-    @Column(name = "ed_broj_broj_mernog_uredjaja", length = 100)
+    @Column(name = "ed_broj_broj_mernog_uredjaja", length = 100, columnDefinition = "VARCHAR(100)")
     private String edBrojBrojMernogUredjaja;
     
     // Energetski podaci - kombinovana kolona
-    @Column(name = "potrosnja_i_povrsina_combined", length = 200)
+    @Column(name = "potrosnja_i_povrsina_combined", length = 200, columnDefinition = "VARCHAR(200)")
     private String potrosnjaIPovrsinaCombined;
     
     // Finansijski podaci
     @Column(name = "iznos_umanjenja_sa_pdv", precision = 12, scale = 2)
     private BigDecimal iznosUmanjenjaSaPdv;
     
-    @Column(name = "broj_racuna", length = 50)
+    @Column(name = "broj_racuna", length = 50, columnDefinition = "VARCHAR(50)")
     private String brojRacuna;
     
     @Column(name = "datum_izdavanja_racuna")

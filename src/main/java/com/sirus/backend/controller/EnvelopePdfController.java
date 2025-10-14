@@ -2,6 +2,7 @@ package com.sirus.backend.controller;
 
 import com.sirus.backend.dto.EnvelopePdfRequest;
 import com.sirus.backend.dto.EnvelopeBackSidePdfRequest;
+import com.sirus.backend.dto.BatchEnvelopeBackSidePdfRequest;
 import com.sirus.backend.dto.UgrozenoLiceDto;
 import com.sirus.backend.service.EnvelopePdfService;
 import com.sirus.backend.service.EnvelopeBackSidePdfService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.io.IOException;
 import java.util.List;
@@ -551,7 +553,8 @@ public class EnvelopePdfController {
             // Generisanje PDF-a za zadnju stranu
             byte[] pdfBytes = envelopeBackSidePdfService.generateEnvelopeBackSidePdf(
                 testRequest.getTemplate(), 
-                testRequest.getUgrozenaLica()
+                testRequest.getUgrozenaLica(),
+                "Test Predmet - Građansko pravo"
             );
             
             // Kreiranje imena fajla
@@ -577,6 +580,7 @@ public class EnvelopePdfController {
     }
     
     @PostMapping(value = "/generate-envelope-back-side-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> generateEnvelopeBackSidePdf(@Valid @RequestBody EnvelopeBackSidePdfRequest request) {
         try {
             System.out.println("=== BACK SIDE PDF GENERATION REQUEST ===");
@@ -598,7 +602,8 @@ public class EnvelopePdfController {
             // Generisanje PDF-a za zadnju stranu koverte
             byte[] pdfBytes = envelopeBackSidePdfService.generateEnvelopeBackSidePdf(
                 request.getTemplate(), 
-                request.getUgrozenaLica()
+                request.getUgrozenaLica(),
+                request.getNazivPredmeta()
             );
             
             System.out.println("Back side PDF generated successfully, size: " + pdfBytes.length + " bytes");
@@ -631,6 +636,139 @@ public class EnvelopePdfController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Neočekivana greška: " + e.getMessage());
+        }
+    }
+    
+    @RequestMapping(value = "/generate-batch-envelope-back-side-pdf", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleBatchOptions() {
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping(value = "/generate-batch-envelope-back-side-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> generateBatchEnvelopeBackSidePdf(@Valid @RequestBody BatchEnvelopeBackSidePdfRequest batchRequest) {
+        try {
+            System.out.println("=== BATCH BACK SIDE PDF GENERATION REQUEST ===");
+            System.out.println("Broj zahteva: " + batchRequest.getRequests().size());
+            
+            // Validacija
+            if (batchRequest.getRequests() == null || batchRequest.getRequests().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body("Lista zahteva ne može biti prazna");
+            }
+            
+            if (batchRequest.getRequests().size() > 10) {
+                return ResponseEntity.badRequest()
+                    .body("Maksimalno 10 zahteva odjednom");
+            }
+            
+            // Validacija svih zahteva
+            for (int i = 0; i < batchRequest.getRequests().size(); i++) {
+                EnvelopeBackSidePdfRequest request = batchRequest.getRequests().get(i);
+                
+                if (!"T1".equals(request.getTemplate()) && !"T2".equals(request.getTemplate())) {
+                    return ResponseEntity.badRequest()
+                        .body("Zahtev " + (i + 1) + ": Template mora biti 'T1' ili 'T2'");
+                }
+                
+                if (request.getUgrozenaLica() == null || request.getUgrozenaLica().isEmpty()) {
+                    return ResponseEntity.badRequest()
+                        .body("Zahtev " + (i + 1) + ": Lista ugroženih lica ne može biti prazna");
+                }
+                
+                if (request.getNazivPredmeta() == null || request.getNazivPredmeta().trim().isEmpty()) {
+                    return ResponseEntity.badRequest()
+                        .body("Zahtev " + (i + 1) + ": Naziv predmeta je obavezan");
+                }
+            }
+            
+            // Generisanje jednog PDF-a sa više stranica
+            byte[] pdfBytes = envelopeBackSidePdfService.generateBatchEnvelopeBackSidePdf(batchRequest.getRequests());
+            
+            System.out.println("Batch PDF generated successfully, size: " + pdfBytes.length + " bytes");
+            
+            // Kreiranje imena fajla
+            String fileName = "koverte-zadnja-strana-batch.pdf";
+            
+            // Postavljanje HTTP headers za PDF download
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+            headers.setContentLength(pdfBytes.length);
+            headers.setCacheControl("no-cache, no-store, must-revalidate");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+            
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            System.err.println("Batch processing error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Greška pri batch procesiranju: " + e.getMessage());
+        }
+    }
+    
+    @RequestMapping(value = "/generate-single-envelope-back-side-pdf", method = RequestMethod.OPTIONS)
+    public ResponseEntity<?> handleSingleOptions() {
+        return ResponseEntity.ok().build();
+    }
+    
+    @PostMapping(value = "/generate-single-envelope-back-side-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> generateSingleEnvelopeBackSidePdf(@Valid @RequestBody EnvelopeBackSidePdfRequest request) {
+        try {
+            System.out.println("=== SINGLE BACK SIDE PDF GENERATION REQUEST ===");
+            System.out.println("Template: " + request.getTemplate());
+            System.out.println("Broj ugroženih lica: " + (request.getUgrozenaLica() != null ? request.getUgrozenaLica().size() : 0));
+            System.out.println("Naziv predmeta: " + request.getNazivPredmeta());
+            
+            // Validacija template-a
+            if (!"T1".equals(request.getTemplate()) && !"T2".equals(request.getTemplate())) {
+                return ResponseEntity.badRequest()
+                    .body("Template mora biti 'T1' ili 'T2'");
+            }
+            
+            // Validacija podataka
+            if (request.getUgrozenaLica() == null || request.getUgrozenaLica().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body("Lista ugroženih lica ne može biti prazna");
+            }
+            
+            if (request.getNazivPredmeta() == null || request.getNazivPredmeta().trim().isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body("Naziv predmeta je obavezan");
+            }
+            
+            // Generisanje PDF-a za zadnju stranu koverte
+            byte[] pdfBytes = envelopeBackSidePdfService.generateEnvelopeBackSidePdf(
+                request.getTemplate(), 
+                request.getUgrozenaLica(),
+                request.getNazivPredmeta()
+            );
+            
+            System.out.println("Single PDF generated successfully, size: " + pdfBytes.length + " bytes");
+            
+            // Kreiranje imena fajla
+            String template = request.getTemplate().toLowerCase();
+            String fileName = "koverte-zadnja-strana-" + template + ".pdf";
+            
+            // Postavljanje HTTP headers za PDF download
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"");
+            headers.setContentLength(pdfBytes.length);
+            headers.setCacheControl("no-cache, no-store, must-revalidate");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+            
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            System.err.println("Single PDF generation error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Greška pri generisanju PDF-a: " + e.getMessage());
         }
     }
 }

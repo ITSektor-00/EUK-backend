@@ -110,12 +110,21 @@
 			<scope>runtime</scope>
 		</dependency>
 		
-		<!-- Apache POI for Excel file processing -->
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>5.2.4</version>
-		</dependency>
+	<!-- Spring Dotenv for .env file support - DISABLED for Docker -->
+	<!--
+	<dependency>
+		<groupId>me.paulschwarz</groupId>
+		<artifactId>spring-dotenv</artifactId>
+		<version>4.0.0</version>
+	</dependency>
+	-->
+	
+	<!-- Apache POI for Excel file processing -->
+	<dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi</artifactId>
+		<version>5.2.4</version>
+	</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
@@ -170,6 +179,8 @@
 					<include>**/*.xml</include>
 					<include>**/*.sql</include>
 					<include>**/*.xlsx</include>
+					<include>**/*.doc</include>
+					<include>**/*.docx</include>
 				</includes>
 			</resource>
 		</resources>

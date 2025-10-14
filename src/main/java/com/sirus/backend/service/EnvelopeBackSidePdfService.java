@@ -10,6 +10,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.font.PdfEncodings;
 import com.sirus.backend.dto.UgrozenoLiceDto;
+import com.sirus.backend.dto.EnvelopeBackSidePdfRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -107,7 +108,7 @@ public class EnvelopeBackSidePdfService {
         return cyrillic.toString();
     }
     
-    public byte[] generateEnvelopeBackSidePdf(String template, List<UgrozenoLiceDto> ugrozenaLica) throws IOException {
+    public byte[] generateEnvelopeBackSidePdf(String template, List<UgrozenoLiceDto> ugrozenaLica, String nazivPredmeta) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
         // Kreiranje PDF dokumenta
@@ -202,14 +203,14 @@ public class EnvelopeBackSidePdfService {
                 pdfDoc.addNewPage(envelopeSize);
             }
             
-            generateEnvelopeBackSideContent(document, font, boldFont, lice, template, currentPage);
+            generateEnvelopeBackSideContent(document, font, boldFont, lice, template, nazivPredmeta, currentPage);
         }
         
         document.close();
         return outputStream.toByteArray();
     }
     
-    private void generateEnvelopeBackSideContent(Document document, PdfFont font, PdfFont boldFont, UgrozenoLiceDto lice, String template, int currentPage) {
+    private void generateEnvelopeBackSideContent(Document document, PdfFont font, PdfFont boldFont, UgrozenoLiceDto lice, String template, String nazivPredmeta, int currentPage) {
         
         // Pozicije prema specifikaciji (u mm)
         // 27mm od gornje ivice i 30mm od leve ivice - broj-resenja
@@ -244,8 +245,9 @@ public class EnvelopeBackSidePdfService {
         float gradTop = 85f * MM_TO_POINTS;
         float gradLeft = 80f * MM_TO_POINTS;
         
-        // Broj-resenja (27mm od gornje, 30mm od leve)
-        Paragraph brojResenja = new Paragraph("број-решења")
+        // Broj-resenja (27mm od gornje, 30mm od leve) - koristi naziv predmeta
+        String brojResenjaText = convertToCyrillic(nazivPredmeta);
+        Paragraph brojResenja = new Paragraph(brojResenjaText)
                 .setFont(boldFont)
                 .setFontSize(8)
                 .setFixedPosition(currentPage, brojResenjaLeft, ENVELOPE_HEIGHT_MM * MM_TO_POINTS - brojResenjaTop, 100f)
@@ -322,10 +324,11 @@ public class EnvelopeBackSidePdfService {
         
         // NOVE POZICIJE - dodatni tekst na zadnjoj strani
         
-        // 142mm od gornje ivice i 25mm od leve ivice - број-решења
+        // 142mm od gornje ivice i 25mm od leve ivice - koristi naziv predmeta
         float brojResenja2Top = 142f * MM_TO_POINTS;
         float brojResenja2Left = 25f * MM_TO_POINTS;
-        Paragraph brojResenja2 = new Paragraph("број-решења")
+        String brojResenja2Text = convertToCyrillic(nazivPredmeta);
+        Paragraph brojResenja2 = new Paragraph(brojResenja2Text)
                 .setFont(boldFont)
                 .setFontSize(8)
                 .setFixedPosition(currentPage, brojResenja2Left, ENVELOPE_HEIGHT_MM * MM_TO_POINTS - brojResenja2Top, 100f)
@@ -373,5 +376,115 @@ public class EnvelopeBackSidePdfService {
                 .setFixedPosition(currentPage, sekretarijat2Left, ENVELOPE_HEIGHT_MM * MM_TO_POINTS - sekretarijat2Top, 300f)
                 .setWidth(300f);
         document.add(sekretarijat2);
+    }
+    
+    public byte[] generateBatchEnvelopeBackSidePdf(List<EnvelopeBackSidePdfRequest> requests) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        // Kreiranje PDF dokumenta
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        
+        // Postavljanje veličine stranice za koverat (175mm x 246mm) - PORTRAIT
+        PageSize envelopeSize = new PageSize(ENVELOPE_WIDTH_MM * MM_TO_POINTS, ENVELOPE_HEIGHT_MM * MM_TO_POINTS);
+        
+        Document document = new Document(pdfDoc);
+        
+        // Učitavanje fonta - MORA FORCE_EMBEDDED!
+        PdfFont font;
+        PdfFont boldFont;
+
+        try {
+            // Pokušaj sa DejaVu Sans iz resources
+            String regularPath = "/fonts/DejaVuSans.ttf";
+            String boldPath = "/fonts/DejaVuSans-Bold.ttf";
+            
+            font = PdfFontFactory.createFont(
+                getClass().getResourceAsStream(regularPath).readAllBytes(),
+                PdfEncodings.IDENTITY_H,
+                PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+            );
+            
+            boldFont = PdfFontFactory.createFont(
+                getClass().getResourceAsStream(boldPath).readAllBytes(),
+                PdfEncodings.IDENTITY_H,
+                PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+            );
+            
+            System.out.println("✅ Fonts loaded from resources with FORCE_EMBEDDED");
+        } catch (Exception e) {
+            System.out.println("❌ Resources fonts failed: " + e.getMessage());
+            // Fallback na Linux system fonts (Render.com)
+            try {
+                font = PdfFontFactory.createFont(
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                    PdfEncodings.IDENTITY_H,
+                    PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+                );
+                boldFont = PdfFontFactory.createFont(
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                    PdfEncodings.IDENTITY_H,
+                    PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+                );
+                System.out.println("✅ Linux system fonts loaded with FORCE_EMBEDDED");
+            } catch (Exception e2) {
+                System.out.println("❌ Linux fonts failed: " + e2.getMessage());
+                // Fallback na Windows fonts (development)
+                try {
+                    font = PdfFontFactory.createFont(
+                        "C:/Windows/Fonts/arial.ttf",
+                        PdfEncodings.IDENTITY_H,
+                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+                    );
+                    boldFont = PdfFontFactory.createFont(
+                        "C:/Windows/Fonts/arialbd.ttf",
+                        PdfEncodings.IDENTITY_H,
+                        PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
+                    );
+                    System.out.println("✅ Windows fonts loaded with FORCE_EMBEDDED");
+                } catch (Exception e3) {
+                    System.out.println("❌ Windows fonts failed: " + e3.getMessage());
+                    // Final fallback na standardni font
+                    font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+                    boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+                    System.out.println("⚠️ WARNING: Fallback to Helvetica - ćirilica neće raditi!");
+                }
+            }
+        }
+        
+        System.out.println("Generating batch PDF for " + requests.size() + " requests");
+        
+        int totalPages = 0;
+        
+        // Procesiranje svakog zahteva
+        for (int requestIndex = 0; requestIndex < requests.size(); requestIndex++) {
+            EnvelopeBackSidePdfRequest request = requests.get(requestIndex);
+            List<UgrozenoLiceDto> ugrozenaLica = request.getUgrozenaLica();
+            String nazivPredmeta = request.getNazivPredmeta();
+            String template = request.getTemplate();
+            
+            System.out.println("Processing request " + (requestIndex + 1) + "/" + requests.size() + 
+                " - Template: " + template + ", Predmet: " + nazivPredmeta + ", Lica: " + ugrozenaLica.size());
+            
+            // Generisanje stranica za svako lice u ovom zahtevu
+            for (int liceIndex = 0; liceIndex < ugrozenaLica.size(); liceIndex++) {
+                UgrozenoLiceDto lice = ugrozenaLica.get(liceIndex);
+                totalPages++;
+                
+                System.out.println("Processing lice " + (liceIndex + 1) + "/" + ugrozenaLica.size() + 
+                    " from request " + (requestIndex + 1) + ": " + lice.getIme() + " " + lice.getPrezime());
+                
+                // Dodaj novu stranicu
+                pdfDoc.addNewPage(envelopeSize);
+                
+                // Generiši sadržaj za ovu stranicu
+                generateEnvelopeBackSideContent(document, font, boldFont, lice, template, nazivPredmeta, totalPages);
+            }
+        }
+        
+        document.close();
+        System.out.println("Batch PDF generated successfully with " + totalPages + " pages");
+        
+        return outputStream.toByteArray();
     }
 }

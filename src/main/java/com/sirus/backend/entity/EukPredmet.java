@@ -120,6 +120,17 @@ public class EukPredmet {
     @Column(name = "template_status", length = 50)
     private String templateStatus;
     
+    // ========== Kolone za "ODBIJA SE NSP" dokument ==========
+    
+    @Column(name = "odbija_se_nsp_dokument", columnDefinition = "bytea")
+    private byte[] odbijaSeNspDokument;
+    
+    @Column(name = "odbija_se_nsp_dokument_naziv", length = 255)
+    private String odbijaSeNspDokumentNaziv;
+    
+    @Column(name = "odbija_se_nsp_dokument_datum")
+    private java.time.LocalDateTime odbijaSeNspDokumentDatum;
+    
     
     // Getters and Setters
     public Integer getPredmetId() {
@@ -216,6 +227,30 @@ public class EukPredmet {
     
     public void setTemplateStatus(String templateStatus) {
         this.templateStatus = templateStatus;
+    }
+    
+    public byte[] getOdbijaSeNspDokument() {
+        return odbijaSeNspDokument;
+    }
+    
+    public void setOdbijaSeNspDokument(byte[] odbijaSeNspDokument) {
+        this.odbijaSeNspDokument = odbijaSeNspDokument;
+    }
+    
+    public String getOdbijaSeNspDokumentNaziv() {
+        return odbijaSeNspDokumentNaziv;
+    }
+    
+    public void setOdbijaSeNspDokumentNaziv(String odbijaSeNspDokumentNaziv) {
+        this.odbijaSeNspDokumentNaziv = odbijaSeNspDokumentNaziv;
+    }
+    
+    public java.time.LocalDateTime getOdbijaSeNspDokumentDatum() {
+        return odbijaSeNspDokumentDatum;
+    }
+    
+    public void setOdbijaSeNspDokumentDatum(java.time.LocalDateTime odbijaSeNspDokumentDatum) {
+        this.odbijaSeNspDokumentDatum = odbijaSeNspDokumentDatum;
     }
     
 }

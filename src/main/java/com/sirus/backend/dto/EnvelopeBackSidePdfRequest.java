@@ -12,11 +12,15 @@ public class EnvelopeBackSidePdfRequest {
     @NotEmpty(message = "Lista ugroženih lica ne može biti prazna")
     private List<UgrozenoLiceDto> ugrozenaLica;
     
+    @NotNull(message = "Naziv predmeta je obavezan")
+    private String nazivPredmeta;
+    
     public EnvelopeBackSidePdfRequest() {}
     
-    public EnvelopeBackSidePdfRequest(String template, List<UgrozenoLiceDto> ugrozenaLica) {
+    public EnvelopeBackSidePdfRequest(String template, List<UgrozenoLiceDto> ugrozenaLica, String nazivPredmeta) {
         this.template = template;
         this.ugrozenaLica = ugrozenaLica;
+        this.nazivPredmeta = nazivPredmeta;
     }
     
     public String getTemplate() {
@@ -33,5 +37,13 @@ public class EnvelopeBackSidePdfRequest {
     
     public void setUgrozenaLica(List<UgrozenoLiceDto> ugrozenaLica) {
         this.ugrozenaLica = ugrozenaLica;
+    }
+    
+    public String getNazivPredmeta() {
+        return nazivPredmeta;
+    }
+    
+    public void setNazivPredmeta(String nazivPredmeta) {
+        this.nazivPredmeta = nazivPredmeta;
     }
 }

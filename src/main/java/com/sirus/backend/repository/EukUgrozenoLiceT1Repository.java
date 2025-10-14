@@ -63,23 +63,39 @@ public interface EukUgrozenoLiceT1Repository extends JpaRepository<EukUgrozenoLi
                                                     @Param("iznosDo") BigDecimal iznosDo,
                                                     Pageable pageable);
     
-    // Kompleksna pretraga sa svim filterima
-    @Query("SELECT u FROM EukUgrozenoLiceT1 u WHERE " +
+    // Kompleksna pretraga sa svim filterima - Native query zbog problema sa Hibernate metadata caching
+    @Query(value = "SELECT * FROM euk.ugrozeno_lice_t1 u WHERE " +
            "(:jmbg IS NULL OR u.jmbg = :jmbg) AND " +
-           "(:redniBroj IS NULL OR u.redniBroj = :redniBroj) AND " +
-           "(:ime IS NULL OR LOWER(u.ime) LIKE LOWER(CONCAT('%', :ime, '%'))) AND " +
-           "(:prezime IS NULL OR LOWER(u.prezime) LIKE LOWER(CONCAT('%', :prezime, '%'))) AND " +
-           "(:gradOpstina IS NULL OR LOWER(u.gradOpstina) LIKE LOWER(CONCAT('%', :gradOpstina, '%'))) AND " +
-           "(:mesto IS NULL OR LOWER(u.mesto) LIKE LOWER(CONCAT('%', :mesto, '%'))) AND " +
-           "(:pttBroj IS NULL OR u.pttBroj = :pttBroj) AND " +
-           "(:osnovStatusa IS NULL OR LOWER(u.osnovSticanjaStatusa) LIKE LOWER(CONCAT('%', :osnovStatusa, '%'))) AND " +
-           "(:edBroj IS NULL OR LOWER(u.edBrojBrojMernogUredjaja) LIKE LOWER(CONCAT('%', :edBroj, '%'))) AND " +
-           "(:brojRacuna IS NULL OR LOWER(u.brojRacuna) LIKE LOWER(CONCAT('%', :brojRacuna, '%'))) AND " +
-           "(:datumOd IS NULL OR u.datumIzdavanjaRacuna >= :datumOd) AND " +
-           "(:datumDo IS NULL OR u.datumIzdavanjaRacuna <= :datumDo) AND " +
-           "(:iznosOd IS NULL OR u.iznosUmanjenjaSaPdv >= :iznosOd) AND " +
-           "(:iznosDo IS NULL OR u.iznosUmanjenjaSaPdv <= :iznosDo) " +
-           "ORDER BY u.ugrozenoLiceId DESC")
+           "(:redniBroj IS NULL OR u.redni_broj = :redniBroj) AND " +
+           "(:ime IS NULL OR LOWER(u.ime::TEXT) LIKE LOWER(CONCAT('%', :ime, '%'))) AND " +
+           "(:prezime IS NULL OR LOWER(u.prezime::TEXT) LIKE LOWER(CONCAT('%', :prezime, '%'))) AND " +
+           "(:gradOpstina IS NULL OR LOWER(u.grad_opstina::TEXT) LIKE LOWER(CONCAT('%', :gradOpstina, '%'))) AND " +
+           "(:mesto IS NULL OR LOWER(u.mesto::TEXT) LIKE LOWER(CONCAT('%', :mesto, '%'))) AND " +
+           "(:pttBroj IS NULL OR u.ptt_broj = :pttBroj) AND " +
+           "(:osnovStatusa IS NULL OR LOWER(u.osnov_sticanja_statusa::TEXT) LIKE LOWER(CONCAT('%', :osnovStatusa, '%'))) AND " +
+           "(:edBroj IS NULL OR LOWER(u.ed_broj_broj_mernog_uredjaja::TEXT) LIKE LOWER(CONCAT('%', :edBroj, '%'))) AND " +
+           "(:brojRacuna IS NULL OR LOWER(u.broj_racuna::TEXT) LIKE LOWER(CONCAT('%', :brojRacuna, '%'))) AND " +
+           "(:datumOd IS NULL OR u.datum_izdavanja_racuna >= :datumOd) AND " +
+           "(:datumDo IS NULL OR u.datum_izdavanja_racuna <= :datumDo) AND " +
+           "(:iznosOd IS NULL OR u.iznos_umanjenja_sa_pdv >= :iznosOd) AND " +
+           "(:iznosDo IS NULL OR u.iznos_umanjenja_sa_pdv <= :iznosDo) " +
+           "ORDER BY u.ugrozeno_lice_id DESC",
+           countQuery = "SELECT COUNT(*) FROM euk.ugrozeno_lice_t1 u WHERE " +
+           "(:jmbg IS NULL OR u.jmbg = :jmbg) AND " +
+           "(:redniBroj IS NULL OR u.redni_broj = :redniBroj) AND " +
+           "(:ime IS NULL OR LOWER(u.ime::TEXT) LIKE LOWER(CONCAT('%', :ime, '%'))) AND " +
+           "(:prezime IS NULL OR LOWER(u.prezime::TEXT) LIKE LOWER(CONCAT('%', :prezime, '%'))) AND " +
+           "(:gradOpstina IS NULL OR LOWER(u.grad_opstina::TEXT) LIKE LOWER(CONCAT('%', :gradOpstina, '%'))) AND " +
+           "(:mesto IS NULL OR LOWER(u.mesto::TEXT) LIKE LOWER(CONCAT('%', :mesto, '%'))) AND " +
+           "(:pttBroj IS NULL OR u.ptt_broj = :pttBroj) AND " +
+           "(:osnovStatusa IS NULL OR LOWER(u.osnov_sticanja_statusa::TEXT) LIKE LOWER(CONCAT('%', :osnovStatusa, '%'))) AND " +
+           "(:edBroj IS NULL OR LOWER(u.ed_broj_broj_mernog_uredjaja::TEXT) LIKE LOWER(CONCAT('%', :edBroj, '%'))) AND " +
+           "(:brojRacuna IS NULL OR LOWER(u.broj_racuna::TEXT) LIKE LOWER(CONCAT('%', :brojRacuna, '%'))) AND " +
+           "(:datumOd IS NULL OR u.datum_izdavanja_racuna >= :datumOd) AND " +
+           "(:datumDo IS NULL OR u.datum_izdavanja_racuna <= :datumDo) AND " +
+           "(:iznosOd IS NULL OR u.iznos_umanjenja_sa_pdv >= :iznosOd) AND " +
+           "(:iznosDo IS NULL OR u.iznos_umanjenja_sa_pdv <= :iznosDo)",
+           nativeQuery = true)
     Page<EukUgrozenoLiceT1> findWithFilters(
             @Param("jmbg") String jmbg,
             @Param("redniBroj") String redniBroj,

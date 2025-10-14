@@ -61,6 +61,7 @@ public class DevelopmentSecurityConfig {
                 .requestMatchers("/api/template/**").permitAll() // Dozvoli template endpoint-e
                 .requestMatchers("/api/template/obrasci-vrste/**").permitAll() // Dozvoli template obrasci vrste
                 .requestMatchers("/api/template/organizaciona-struktura/**").permitAll() // Dozvoli template organizaciona struktura
+                .requestMatchers("/api/dokumenti/**").permitAll() // Dozvoli dokumenti endpoint-e (generisanje Word dokumenata)
                 .requestMatchers("/api/kategorije/**").permitAll() // Dozvoli kategorije endpoint-e
                 .requestMatchers("/api/obrasci-vrste/**").permitAll() // Dozvoli obrasci vrste endpoint-e
                 .requestMatchers("/api/organizaciona-struktura/**").permitAll() // Dozvoli organizaciona struktura endpoint-e

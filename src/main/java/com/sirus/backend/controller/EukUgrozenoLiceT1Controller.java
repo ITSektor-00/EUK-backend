@@ -12,7 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -226,13 +229,65 @@ public class EukUgrozenoLiceT1Controller {
     
     // POST /api/euk/ugrozena-lica-t1/search/filters - Kompleksna pretraga sa filterima
     @PostMapping("/search/filters")
-    public ResponseEntity<?> searchWithFilters(@RequestBody Map<String, Object> filters,
-                                              @RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "50000") int size) {
+    public ResponseEntity<?> searchWithFiltersPost(@RequestBody Map<String, Object> filters,
+                                                  @RequestParam(defaultValue = "0") int page,
+                                                  @RequestParam(defaultValue = "50000") int size) {
         
         logger.info("POST /api/euk/ugrozena-lica-t1/search/filters - Searching with filters: {}", filters);
         
         try {
+            Page<EukUgrozenoLiceT1Dto> results = ugrozenoLiceT1Service.searchWithFilters(filters, page, size);
+            return ResponseEntity.ok(PaginatedResponse.from(results));
+        } catch (Exception e) {
+            logger.error("Error searching with filters: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "INTERNAL_ERROR",
+                "message", "Greška pri pretrazi sa filterima: " + e.getMessage(),
+                "path", "/api/euk/ugrozena-lica-t1/search/filters"
+            ));
+        }
+    }
+    
+    // GET /api/euk/ugrozena-lica-t1/search/filters - Kompleksna pretraga sa filterima (GET alternativa)
+    @GetMapping("/search/filters")
+    public ResponseEntity<?> searchWithFiltersGet(
+            @RequestParam(required = false) String jmbg,
+            @RequestParam(required = false) String redniBroj,
+            @RequestParam(required = false) String ime,
+            @RequestParam(required = false) String prezime,
+            @RequestParam(required = false) String gradOpstina,
+            @RequestParam(required = false) String mesto,
+            @RequestParam(required = false) String pttBroj,
+            @RequestParam(required = false) String osnovStatusa,
+            @RequestParam(required = false) String edBroj,
+            @RequestParam(required = false) String brojRacuna,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datumOd,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate datumDo,
+            @RequestParam(required = false) BigDecimal iznosOd,
+            @RequestParam(required = false) BigDecimal iznosDo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50000") int size) {
+        
+        logger.info("GET /api/euk/ugrozena-lica-t1/search/filters - Searching with filters");
+        
+        try {
+            // Kreiraj Map sa filterima iz query parametara
+            Map<String, Object> filters = new HashMap<>();
+            filters.put("jmbg", jmbg);
+            filters.put("redniBroj", redniBroj);
+            filters.put("ime", ime);
+            filters.put("prezime", prezime);
+            filters.put("gradOpstina", gradOpstina);
+            filters.put("mesto", mesto);
+            filters.put("pttBroj", pttBroj);
+            filters.put("osnovStatusa", osnovStatusa);
+            filters.put("edBroj", edBroj);
+            filters.put("brojRacuna", brojRacuna);
+            filters.put("datumOd", datumOd);
+            filters.put("datumDo", datumDo);
+            filters.put("iznosOd", iznosOd);
+            filters.put("iznosDo", iznosDo);
+            
             Page<EukUgrozenoLiceT1Dto> results = ugrozenoLiceT1Service.searchWithFilters(filters, page, size);
             return ResponseEntity.ok(PaginatedResponse.from(results));
         } catch (Exception e) {

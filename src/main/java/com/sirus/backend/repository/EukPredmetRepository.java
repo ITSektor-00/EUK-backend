@@ -26,12 +26,14 @@ public interface EukPredmetRepository extends JpaRepository<EukPredmet, Integer>
            "AND (:prioritet IS NULL OR p.prioritet = :prioritet) " +
            "AND (:kategorijaId IS NULL OR p.kategorija.kategorijaId = :kategorijaId) " +
            "AND (:odgovornaOsoba IS NULL OR LOWER(p.odgovornaOsoba) LIKE LOWER(CONCAT('%', :odgovornaOsoba, '%'))) " +
+           "AND (:nazivPredmeta IS NULL OR LOWER(p.nazivPredmeta) LIKE LOWER(CONCAT('%', :nazivPredmeta, '%'))) " +
            "GROUP BY p.predmetId, p.datumKreiranja, p.nazivPredmeta, p.status, p.odgovornaOsoba, p.prioritet, p.rokZaZavrsetak, p.kategorija.kategorijaId, k.naziv")
     Page<Object[]> findAllWithFilters(
             @Param("status") EukPredmet.Status status,
             @Param("prioritet") EukPredmet.Prioritet prioritet,
             @Param("kategorijaId") Integer kategorijaId,
             @Param("odgovornaOsoba") String odgovornaOsoba,
+            @Param("nazivPredmeta") String nazivPredmeta,
             Pageable pageable);
     
     @Query("SELECT p FROM EukPredmet p LEFT JOIN FETCH p.kategorija WHERE p.predmetId = :id")
@@ -46,4 +48,7 @@ public interface EukPredmetRepository extends JpaRepository<EukPredmet, Integer>
     List<EukPredmet> findByOdgovornaOsobaContainingIgnoreCase(String odgovornaOsoba);
     
     List<EukPredmet> findByRokZaZavrsetakBefore(LocalDate date);
+    
+    @Query("SELECT DISTINCT p.nazivPredmeta FROM EukPredmet p ORDER BY p.nazivPredmeta")
+    List<String> findAllNaziviPredmeta();
 }

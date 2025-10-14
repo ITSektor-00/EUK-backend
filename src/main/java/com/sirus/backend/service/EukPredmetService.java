@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class EukPredmetService {
@@ -40,13 +41,14 @@ public class EukPredmetService {
             EukPredmet.Prioritet prioritet,
             Integer kategorijaId,
             String odgovornaOsoba,
+            String nazivPredmeta,
             int page,
             int size) {
-        logger.info("Fetching EUK predmeti with filters - status: {}, prioritet: {}, kategorijaId: {}, odgovornaOsoba: {}", 
-                   status, prioritet, kategorijaId, odgovornaOsoba);
+        logger.info("Fetching EUK predmeti with filters - status: {}, prioritet: {}, kategorijaId: {}, odgovornaOsoba: {}, nazivPredmeta: {}", 
+                   status, prioritet, kategorijaId, odgovornaOsoba, nazivPredmeta);
         
         Pageable pageable = PageRequest.of(page, size);
-        Page<Object[]> results = predmetRepository.findAllWithFilters(status, prioritet, kategorijaId, odgovornaOsoba, pageable);
+        Page<Object[]> results = predmetRepository.findAllWithFilters(status, prioritet, kategorijaId, odgovornaOsoba, nazivPredmeta, pageable);
         return results.map(this::convertToDtoFromObjectArray);
     }
     
@@ -57,6 +59,11 @@ public class EukPredmetService {
             throw new EukException("Predmet sa ID " + id + " nije pronađen");
         }
         return convertToDto(predmet);
+    }
+    
+    public List<String> findAllNaziviPredmeta() {
+        logger.info("Fetching all EUK predmet nazivi");
+        return predmetRepository.findAllNaziviPredmeta();
     }
     
     @Transactional

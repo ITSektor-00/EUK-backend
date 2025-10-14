@@ -30,6 +30,7 @@ public class GlobalLicenseCheckInterceptor implements HandlerInterceptor {
         "/api/test-envelope-pdf", // Test PDF endpoint
         "/api/test-pdf", // Test PDF endpoint
         "/api/export/", // Export endpoint-i
+        "/api/dokumenti/", // Dokumenti endpoint-i (Word generisanje)
         "/error",
         "/actuator",
         "/swagger-ui",

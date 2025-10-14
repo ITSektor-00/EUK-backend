@@ -65,6 +65,15 @@ public class EukUgrozenoLiceT1Service {
         return convertToDto(savedUgrozenoLice);
     }
     
+    /**
+     * Alias za create metodu - koristi se u controller-u
+     */
+    @Transactional
+    public EukUgrozenoLiceT1 save(EukUgrozenoLiceT1Dto dto) {
+        EukUgrozenoLiceT1Dto savedDto = create(dto);
+        return convertToEntity(savedDto);
+    }
+    
     
     @Transactional
     public EukUgrozenoLiceT1Dto update(Integer id, EukUgrozenoLiceT1Dto dto) {
