@@ -71,6 +71,12 @@ public class GlobalLicenseCheckInterceptor implements HandlerInterceptor {
             return true;
         }
         
+        // Preskoči proveru za export endpoint-e
+        if (requestPath.startsWith("/api/export/")) {
+            System.out.println("Export endpoint excluded: " + requestPath);
+            return true;
+        }
+        
         try {
             // Proveri da li postoji važeća globalna licenca
             boolean hasValidGlobalLicense = globalLicenseService.checkAndUpdateGlobalLicenseStatus();

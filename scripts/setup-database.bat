@@ -83,7 +83,7 @@ if %errorlevel% equ 0 (
 
 REM Create .env file if it doesn't exist
 if not exist .env (
-    echo 📝 Creating .env file...
+    echo 📝 Creating .env file in euk-backend directory...
     (
         echo # Database Configuration - LOCAL POSTGRESQL
         echo DATABASE_URL=jdbc:postgresql://localhost:5432/%DB_NAME%
@@ -111,7 +111,7 @@ if not exist .env (
         echo # Security Headers
         echo SECURITY_HEADERS_ENABLED=true
     ) > .env
-    echo ✅ .env file created successfully!
+    echo ✅ .env file created successfully in euk-backend directory!
 ) else (
     echo ⚠️ .env file already exists. Please update it manually with the new database credentials.
 )

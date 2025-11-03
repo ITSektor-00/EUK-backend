@@ -1,11 +1,54 @@
-target/
-!target/*.jar
+# Git
 .git
 .gitignore
+
+# Documentation
 README.md
+dokumentacija/
+
+# Scripts
+bashSkripte/
+scripts/
+postgresQuery/
+
+# Test files
+testovi/
+web-socket-provere/
+
+# IDE
+.vscode/
 .idea/
 *.iml
-.vscode/
-node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Maven
+target/
+!target/classes
+!target/generated-sources
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment
 .env
-*.log 
+.env.local
+.env.production
+
+# Node modules (if any)
+node_modules/
+
+# Build artifacts
+*.jar
+!target/*.jar

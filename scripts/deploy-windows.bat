@@ -7,6 +7,9 @@ echo 🚀 Starting SIRUS deployment with PostgreSQL...
 REM Load environment variables
 if exist .env (
     for /f "tokens=1,2 delims==" %%a in (.env) do set %%a=%%b
+) else if exist ..\.env (
+    echo Loading .env file from parent directory...
+    for /f "tokens=1,2 delims==" %%a in (..\.env) do set %%a=%%b
 ) else (
     echo Error: .env file not found!
     echo Please copy env.example to .env and fill in your values.

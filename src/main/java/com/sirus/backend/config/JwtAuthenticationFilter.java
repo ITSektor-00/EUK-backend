@@ -12,11 +12,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.lang.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
@@ -32,11 +36,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
         
-        // Proveri da li je zahtev za public endpoint
+        // Log CORS informacije za debugging (samo za API endpoint-e)
         String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/api/")) {
+            String origin = request.getHeader("Origin");
+            String referer = request.getHeader("Referer");
+            String userAgent = request.getHeader("User-Agent");
+            String remoteAddr = request.getRemoteAddr();
+            
+            logger.debug("API Request - URI: {}, Origin: {}, Referer: {}, User-Agent: {}, RemoteAddr: {}", 
+                requestURI, origin != null ? origin : "null", 
+                referer != null ? referer : "null",
+                userAgent != null ? userAgent : "null",
+                remoteAddr);
+        }
+        
+        // Proveri da li je zahtev za public endpoint
         if (requestURI.startsWith("/api/auth/") || 
             requestURI.startsWith("/api/test/") || 
             requestURI.startsWith("/actuator/") ||
+            requestURI.startsWith("/api/global-license/") ||
             requestURI.startsWith("/api/generate-envelope-pdf") ||
             requestURI.startsWith("/api/generate-envelope-back-side-pdf") ||
             requestURI.startsWith("/api/test-envelope-pdf") ||

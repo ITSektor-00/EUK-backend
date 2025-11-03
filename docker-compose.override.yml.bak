@@ -1,0 +1,113 @@
+# Root docker-compose.override.yml
+# Ovaj fajl pokreće sve servise zajedno
+# Koristi se iz root direktorijuma projekta
+
+version: '3.8'
+
+services:
+  # EUK Backend
+  euk-backend:
+    build: ./euk-backend
+    container_name: euk-backend
+    environment:
+      # Database Configuration
+      DATABASE_URL: jdbc:postgresql://euk-postgres:5432/${POSTGRES_DB}
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      
+      # Application Configuration
+      PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      
+      # Security Configuration
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+      
+      # License Configuration
+      LICENSE_CHECK_INTERVAL: ${LICENSE_CHECK_INTERVAL}
+    ports:
+      - "${BACKEND_PORT}:8080"
+    depends_on:
+      euk-postgres:
+        condition: service_healthy
+    networks:
+      - euk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  euk-postgres:
+    image: postgres:15-alpine
+    container_name: euk-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./euk-backend/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - euk-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # EUK Frontend (ako postoji)
+  euk-frontend:
+    build: ./euk-frontend
+    container_name: euk-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    depends_on:
+      - euk-backend
+    networks:
+      - euk-network
+    restart: unless-stopped
+
+  # EUK Pisarnica API (ako postoji)
+  euk-pisarnica-api:
+    build: ./euk-pisarnica-api
+    container_name: euk-pisarnica-api
+    ports:
+      - "${PISARNICA_PORT:-8081}:8081"
+    depends_on:
+      - euk-postgres
+    networks:
+      - euk-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: euk-nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - euk-backend
+      - euk-frontend
+    networks:
+      - euk-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  euk-network:
+    driver: bridge

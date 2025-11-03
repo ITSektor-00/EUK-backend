@@ -18,7 +18,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -44,6 +43,7 @@ public class DevelopmentSecurityConfig {
                 .requestMatchers("/api/auth/**", "/actuator/health").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/global-license/**").permitAll() // Dozvoli global license endpoint-e
                 .requestMatchers("/api/euk/**").permitAll() // Dozvoli EUK endpoint-e
                 .requestMatchers("/api/users/**").permitAll() // Dozvoli Users endpoint-e
                 .requestMatchers("/api/admin/**").permitAll() // Dozvoli Admin endpoint-e
@@ -70,7 +70,7 @@ public class DevelopmentSecurityConfig {
                 .requestMatchers("/api/t2-lice/**").permitAll() // Dozvoli T2 lice endpoint-e
                 .requestMatchers("/generated_templates/**").permitAll() // Dozvoli pristup generisanim template-ima
                 .requestMatchers("/ws/**").permitAll() // Dozvoli WebSocket endpoint-e
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailsService), 
                            UsernamePasswordAuthenticationFilter.class);
@@ -80,17 +80,42 @@ public class DevelopmentSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Use strength 12 to match database hashes ($2a$12$...)
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Development CORS - dozvoli samo localhost:3000
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        // Development CORS - dozvoli localhost, Next.js server i sve potrebne domene
+        // Koristimo pattern matching da dozvolimo server-to-server komunikaciju (Next.js proxy)
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "http://host.docker.internal:*",  // Za Docker networking
+            "https://euk.vercel.app",
+            "https://euk-it-sectors-projects.vercel.app"
+        ));
+        
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization", 
+            "Content-Type", 
+            "X-Requested-With", 
+            "Accept",
+            "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
+            "Referer",
+            "User-Agent",
+            "sec-ch-ua",
+            "sec-ch-ua-mobile", 
+            "sec-ch-ua-platform",
+            "sec-fetch-mode",
+            "sec-fetch-site",
+            "sec-fetch-dest"
+        ));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         

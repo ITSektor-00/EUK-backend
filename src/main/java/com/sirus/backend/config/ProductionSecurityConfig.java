@@ -45,6 +45,8 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/auth/**", "/actuator/health").permitAll()
                 .requestMatchers("/api/test/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/global-license/**").permitAll() // Dozvoli global license endpoint-e
+                .requestMatchers("/api/export/**").permitAll() // Dozvoli sve export endpoint-e - pomereno na vrh da se ranije evaluira
                 .requestMatchers("/api/euk/**").permitAll() // Dozvoli EUK endpoint-e
                 .requestMatchers("/api/users/**").permitAll() // Dozvoli Users endpoint-e
                 .requestMatchers("/api/admin/**").permitAll() // Dozvoli Admin endpoint-e
@@ -61,7 +63,6 @@ public class ProductionSecurityConfig {
                 .requestMatchers("/api/test-basic-pdf").permitAll() // Dozvoli basic PDF test
                 .requestMatchers("/api/test-envelope-back-side-pdf").permitAll() // Dozvoli test back side PDF
                 .requestMatchers("/api/test-font-pdf").permitAll() // Dozvoli test font PDF
-                .requestMatchers("/api/export/**").permitAll() // Dozvoli sve export endpoint-e
                 .requestMatchers("/api/import/**").permitAll() // Dozvoli sve import endpoint-e
                 .requestMatchers("/api/template/**").permitAll() // Dozvoli template endpoint-e
                 .requestMatchers("/api/dokumenti/**").permitAll() // Dozvoli dokumenti endpoint-e (generisanje Word dokumenata)
@@ -79,7 +80,8 @@ public class ProductionSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Use strength 12 to match database hashes ($2a$12$...)
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
@@ -89,21 +91,32 @@ public class ProductionSecurityConfig {
         // Get allowed domains from environment variable or use defaults
         String allowedDomains = System.getenv("EUK_ALLOWED_DOMAINS");
         if (allowedDomains != null && !allowedDomains.isEmpty()) {
-            configuration.setAllowedOrigins(Arrays.asList(allowedDomains.split(",")));
+            // Koristimo pattern matching za fleksibilniju konfiguraciju
+            // Omogućava server-to-server komunikaciju (Next.js proxy)
+            List<String> domains = Arrays.asList(allowedDomains.split(","));
+            configuration.setAllowedOriginPatterns(domains);
         } else {
-            // Default domains - eksplicitno dodaj localhost za development
-            configuration.setAllowedOrigins(List.of(
+            // Default domains - uključuje browser origin-e i Next.js server origin-e
+            // Koristimo pattern matching da dozvolimo i server-to-server zahteve
+            configuration.setAllowedOriginPatterns(List.of(
                 "https://euk.vercel.app",
                 "https://euk-it-sectors-projects.vercel.app",
-                "http://localhost",
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1"
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                "http://host.docker.internal:*"  // Za Docker networking - Next.js server može pristupati preko ovoga
             ));
         }
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
+        
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList(
+            "Authorization", 
+            "Content-Type", 
+            "X-Requested-With", 
+            "Accept",
+            "Origin",
+            "Referer",
+            "User-Agent"
+        ));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
         

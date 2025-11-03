@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "predmet", schema = "EUK")
+@Table(name = "predmet", schema = "euk")
 public class EukPredmet {
     
     public enum Status {

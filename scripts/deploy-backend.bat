@@ -7,6 +7,9 @@ REM Load environment variables
 if exist .env (
     echo Loading .env file...
     for /f "tokens=*" %%a in (.env) do set %%a
+) else if exist ..\.env (
+    echo Loading .env file from parent directory...
+    for /f "tokens=*" %%a in (..\.env) do set %%a
 )
 
 REM Check if required variables are set

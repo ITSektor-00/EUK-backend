@@ -38,16 +38,6 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody SignUpRequest request) {
         try {
-            // Debug logging - ispiši sve podatke
-            logger.info("=== SIGNUP REQUEST DEBUG ===");
-            logger.info("Request object: {}", request);
-            logger.info("Username: '{}'", request.getUsername());
-            logger.info("Email: '{}'", request.getEmail());
-            logger.info("Password: '{}'", request.getPassword() != null ? "***" : "NULL");
-            logger.info("FirstName: '{}'", request.getFirstName());
-            logger.info("LastName: '{}'", request.getLastName());
-            logger.info("==========================");
-            
             // Validacija
             if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
                 logger.error("Username is null or empty");
@@ -84,13 +74,6 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<?> signIn(@RequestBody SignInRequest request) {
         try {
-            // Debug logging za signin
-            logger.info("=== SIGNIN REQUEST DEBUG ===");
-            logger.info("Request object: {}", request);
-            logger.info("UsernameOrEmail: '{}'", request.getUsernameOrEmail());
-            logger.info("Password: '{}'", request.getPassword() != null ? "***" : "NULL");
-            logger.info("==========================");
-            
             // Validacija
             if (request.getUsernameOrEmail() == null || request.getUsernameOrEmail().trim().isEmpty()) {
                 logger.error("UsernameOrEmail is null or empty");
@@ -216,17 +199,6 @@ public class AuthController {
     public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String authHeader,
                                          @RequestBody UpdateProfileRequest request) {
         try {
-            logger.info("=== UPDATE PROFILE REQUEST DEBUG ===");
-            logger.info("Auth header: {}", authHeader);
-            logger.info("Request object: {}", request);
-            logger.info("Username: '{}'", request.getUsername());
-            logger.info("FirstName: '{}'", request.getFirstName());
-            logger.info("LastName: '{}'", request.getLastName());
-            logger.info("Email: '{}'", request.getEmail());
-            logger.info("Password: '{}'", request.getPassword() != null ? "***" : "NULL");
-            logger.info("Raw request body should include username if you want to update it");
-            logger.info("================================");
-            
             // Validacija Authorization header-a
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 logger.error("Invalid authorization header");
@@ -234,15 +206,12 @@ public class AuthController {
             }
             
             String token = authHeader.substring(7); // Remove "Bearer "
-            logger.info("Token: {}", token);
             
             if (!jwtService.validateToken(token)) {
-                logger.error("Invalid token");
                 return ResponseEntity.status(401).body(new ErrorResponse("AUTH_ERROR", "Nevažeći token", "/api/auth/profile"));
             }
             
             String username = jwtService.getUsernameFromToken(token);
-            logger.info("Username from token: {}", username);
             
             // Validacija request podataka
             if (request.getFirstName() == null || request.getFirstName().trim().isEmpty()) {
@@ -259,8 +228,6 @@ public class AuthController {
             }
             
             UpdateProfileResponse response = authService.updateProfile(username, request);
-            logger.info("Profile updated successfully for user: {}", username);
-            logger.info("New token generated: {}", response.getToken() != null ? "YES" : "NO");
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {

@@ -15,6 +15,9 @@ REM Load environment variables
 if exist .env (
     echo Loading environment variables from .env file...
     for /f "tokens=1,2 delims==" %%a in (.env) do set %%a=%%b
+) else if exist ..\.env (
+    echo Loading .env file from parent directory...
+    for /f "tokens=1,2 delims==" %%a in (..\.env) do set %%a=%%b
 ) else (
     echo WARNING: .env file not found. Using default values.
 )

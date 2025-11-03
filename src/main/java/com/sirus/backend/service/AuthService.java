@@ -9,6 +9,7 @@ import com.sirus.backend.entity.User;
 import com.sirus.backend.repository.UserRepository;
 import com.sirus.backend.exception.AuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +72,12 @@ public class AuthService {
         }
         
         // Proveri lozinku
+        System.out.println("DEBUG: Checking password for user: " + user.getUsername());
+        System.out.println("DEBUG: Provided password: '" + request.getPassword() + "'");
+        System.out.println("DEBUG: Stored hash: '" + user.getPasswordHash() + "'");
+        System.out.println("DEBUG: PasswordEncoder class: " + passwordEncoder.getClass().getName());
+        System.out.println("DEBUG: Password matches: " + passwordEncoder.matches(request.getPassword(), user.getPasswordHash()));
+        
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             throw new AuthException("Pogresna lozinka", "INVALID_PASSWORD");
         }

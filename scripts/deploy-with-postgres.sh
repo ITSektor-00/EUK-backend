@@ -52,13 +52,18 @@ fi
 
 # Check if .env file exists
 if [ ! -f .env ]; then
-    print_error ".env file not found. Please create it first."
-    echo "You can use the setup-database.sh script to create it automatically."
-    exit 1
+    if [ -f ../.env ]; then
+        print_status "Using .env file from parent directory..."
+        source ../.env
+    else
+        print_error ".env file not found. Please create it first."
+        echo "You can use the setup-database.sh script to create it automatically."
+        exit 1
+    fi
+else
+    # Load environment variables
+    source .env
 fi
-
-# Load environment variables
-source .env
 
 print_header "1. Stopping existing containers..."
 docker stop $CONTAINER_NAME_BACKEND $CONTAINER_NAME_POSTGRES 2>/dev/null || true

@@ -1,5 +1,6 @@
 package com.sirus.backend.controller;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -124,6 +125,19 @@ public class TestController {
         response.put("available", isAvailable);
         response.put("timestamp", LocalDateTime.now());
         response.put("message", isAvailable ? "Username is available" : "Username already exists");
+        
+        return response;
+    }
+
+    @GetMapping("/bcrypt/{password}")
+    public Map<String, String> generateBCryptHash(@PathVariable String password) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+        String hash = encoder.encode(password);
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("password", password);
+        response.put("hash", hash);
+        response.put("matches", String.valueOf(encoder.matches(password, hash)));
         
         return response;
     }

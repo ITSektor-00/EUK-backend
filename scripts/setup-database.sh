@@ -113,7 +113,7 @@ fi
 
 # Create .env file if it doesn't exist
 if [ ! -f .env ]; then
-    print_status "Creating .env file..."
+    print_status "Creating .env file in euk-backend directory..."
     cat > .env << EOF
 # Database Configuration - LOCAL POSTGRESQL
 DATABASE_URL=jdbc:postgresql://localhost:5432/$DB_NAME
@@ -141,7 +141,7 @@ EUK_RATE_LIMIT_MAX_REQUESTS=150
 # Security Headers
 SECURITY_HEADERS_ENABLED=true
 EOF
-    print_status ".env file created successfully!"
+    print_status ".env file created successfully in euk-backend directory!"
 else
     print_warning ".env file already exists. Please update it manually with the new database credentials."
 fi

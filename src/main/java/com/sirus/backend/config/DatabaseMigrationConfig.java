@@ -24,22 +24,21 @@ public class DatabaseMigrationConfig implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        System.out.println("=== Pokretanje database migracija ===");
-        
-        try {
-            // Pokretanje SQL skripta za rešavanje JMBG kolone
-            runSqlScript("sql/fix_jmbg_column.sql");
-            System.out.println("✓ Database migracije uspešno završene");
-        } catch (Exception e) {
-            System.err.println("✗ Greška prilikom pokretanja database migracija: " + e.getMessage());
-            // Ne prekidamo aplikaciju zbog migracija, samo logujemo grešku
-        }
+        // Migracije su onemogućene - nema logovanja
     }
 
     private void runSqlScript(String scriptPath) throws IOException {
         System.out.println("Pokretanje SQL skripta: " + scriptPath);
         
         ClassPathResource resource = new ClassPathResource(scriptPath);
+        
+        // Proveri da li fajl postoji
+        if (!resource.exists()) {
+            System.err.println("✗ SQL skript ne postoji: " + scriptPath);
+            return;
+        }
+        
+        System.out.println("✓ SQL skript pronađen: " + scriptPath);
         String sql = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
         
         // Podeli SQL na pojedinačne upite
